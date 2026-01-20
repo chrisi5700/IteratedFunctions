@@ -47,20 +47,14 @@ The project follows a **Model-View-Controller** pattern:
 - **vcpkg** (automatically bootstrapped via CMake)
 - **Slang Compiler** (for shader compilation)
 
-### Using Nix (Recommended)
 
-```sh
-nix develop
-cmake --preset debug
-cmake --build build
-```
 
 ### Manual Build
 
 ```sh
 # Configure with CMake presets
-cmake --preset debug      # Debug build with validation layers
-cmake --preset release    # Optimized release build
+cmake --preset dev-vcpkg      # Debug build with validation layers
+cmake --preset release-vcpkg    # Optimized release build
 
 # Build
 cmake --build build
@@ -137,6 +131,7 @@ IteratedFunctions/
 ### Performance
 
 - **50M particles** @ 30 FPS on NVIDIA RTX 4060
+- **100M particles** @ 15 FPS on NVIDIA RTX 4060
 - Logarithmic slider for intuitive particle count adjustment
 
 ### Shader System

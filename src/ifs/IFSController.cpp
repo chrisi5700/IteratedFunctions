@@ -11,7 +11,7 @@
 namespace ifs {
 
 // GLFW callback wrappers
-void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void glfw_key_callback(GLFWwindow* window, int key, [[maybe_unused]] int scancode, int action,[[maybe_unused]]  int mods) {
     auto* controller = static_cast<IFSController*>(glfwGetWindowUserPointer(window));
     if (!controller) return;
 

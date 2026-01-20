@@ -599,7 +599,7 @@ void SphereRenderer::update_particle_buffer(vk::Buffer particle_buffer) {
 
 void SphereRenderer::render(
     vk::CommandBuffer cmd,
-    vk::Buffer particle_buffer,
+    [[maybe_unused]] vk::Buffer particle_buffer,
     uint32_t particle_count,
     Camera& camera,
     const vk::Extent2D* extent
