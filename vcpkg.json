@@ -1,6 +1,15 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-  "name": "test-project",
+  "name": "iterated-functions",
   "version": "0.1.0",
-  "dependencies": ["catch2", "benchmark"]
+  "dependencies": [
+    "catch2",
+    "benchmark",
+    "glm",
+    "spdlog",
+    {
+      "name": "imgui",
+      "features": ["vulkan-binding", "glfw-binding"]
+    }
+  ]
 }

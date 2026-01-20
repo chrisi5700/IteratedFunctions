@@ -1,4 +1,14 @@
+target_add_executable(ifs_visualizer)
+target_link_libraries(ifs_visualizer PRIVATE
+    IFSLib
+    imgui::imgui
+)
+target_sources(ifs_visualizer PRIVATE ifs_visualizer_main.cpp)
 
-target_add_executable(playground main.cpp)
-target_compile_features(playground PRIVATE cxx_std_23)
-# target_compile_definitions(playground PRIVATE SOME_DEFINE=VALUE)
+# Modular IFS visualizer
+target_add_executable(ifs_modular)
+target_link_libraries(ifs_modular PRIVATE
+    IFSLib
+    imgui::imgui
+)
+target_sources(ifs_modular PRIVATE ifs_modular_main.cpp)

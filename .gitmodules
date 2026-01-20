@@ -1,0 +1,4 @@
+[submodule "ext/slang"]
+	path = ext/slang
+	url = git@github.com:chrisi5700/slang.git
+	branch = feature/reflect-on-streams
