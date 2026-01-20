@@ -1,149 +1,160 @@
-# CMake Starter Template
+# Iterated Function Systems Visualizer
 
-This repository provides a structured C++ project template using **CMake** and **Nix flakes**.  
-It includes benchmarking, testing, and a dedicated playground for experimentation.
+A high-performance **Vulkan-based fractal visualizer** for exploring Iterated Function Systems (IFS) with real-time GPU compute and interactive rendering.
+
+![Sierpinski Triangle - 50M particles](images/sierpinski.png)
+*Sierpinski Triangle rendered with 50,000,000 particles*
 
 ---
 
 ## Features
 
-- **CMake-based project structure**
-- **Nix flake** for a reproducible development environment
-- **Google Benchmark** for performance analysis
-- **Catch2** for unit testing
-- **Playground** for isolated code testing
-- **libs/** for external or custom libraries
+- **GPU-Accelerated Compute** - Vulkan compute shaders for massively parallel IFS iteration
+- **Real-time Rendering** - Up to 100,000,000 particles rendered at interactive framerates
+- **MVC Architecture** - Clean separation between fractal computation (Backend), visualization (Frontend), and user interaction (Controller)
+- **Dynamic Parameters** - Adjust particle count, iteration depth, and fractal parameters in real-time via ImGui
+- **Extensible Design** - Plug-and-play backends (fractal types) and frontends (rendering styles)
+- **Modern C++23** - Uses `std::expected`, concepts, and RAII patterns throughout
 
 ---
 
-## Development with Nix
+## Architecture
 
-A **Nix flake** provides a consistent development environment.
+The project follows a **Model-View-Controller** pattern:
+
+- **Model (Backend)**: `IFSBackend` - Computes fractal data using Vulkan compute shaders
+  - `Sierpinski2D` - Classic Sierpinski Triangle fractal
+  - Extensible to other IFS fractals (Barnsley Fern, Dragon Curve, etc.)
+
+- **View (Frontend)**: `IFSFrontend` - Renders particle data
+  - `ParticleRenderer` - Point-cloud visualization with depth testing
+  - Extensible to other rendering modes (instanced meshes, volume rendering, etc.)
+
+- **Controller**: `IFSController` - Manages window, input, camera, and UI
+  - GLFW window management
+  - 3D camera with mouse/keyboard controls
+  - ImGui-based parameter UI
+  - Synchronization between compute and graphics
+
+---
+
+## Building
+
+### Prerequisites
+
+- **CMake** 3.20+
+- **Vulkan SDK** 1.3+
+- **vcpkg** (automatically bootstrapped via CMake)
+- **Slang Compiler** (for shader compilation)
+
+### Using Nix (Recommended)
 
 ```sh
 nix develop
+cmake --preset debug
+cmake --build build
 ```
 
----
-
-## Building the Project
+### Manual Build
 
 ```sh
-# Configure the build
-cmake -B build -DCMAKE_BUILD_TYPE=Release
+# Configure with CMake presets
+cmake --preset debug      # Debug build with validation layers
+cmake --preset release    # Optimized release build
 
-# Build all targets
+# Build
 cmake --build build
 
-# Run tests
-ctest --test-dir build
-
-# Run benchmarks
-./build/bench/bench
+# Run
+./build/playground/ifs_modular_main
 ```
 
 ---
 
-## Project Structure & Extension Guide
+## Usage
 
-### `/src` - Source Libraries
+### Controls
 
-The `src/` directory is where you define CMake libraries for your project. Here are common patterns:
+- **Mouse Drag** - Rotate camera (hold left mouse button)
+- **Scroll** - Zoom in/out
+- **WASD** - Pan camera
+- **TAB** - Toggle mouse capture
+- **UI Sliders** - Adjust particle count (10K - 100M), iteration depth, etc.
 
-#### Basic Library Definition
+### Adding New Fractals
 
-```cmake
-target_add_library(MyLib src/mylib.cpp src/mylib.hpp)
+1. Create a new backend class inheriting from `IFSBackend`
+2. Implement `compute()` with your IFS algorithm
+3. Expose parameters via `get_ui_callbacks()`
+4. Register in main application
 
-target_include_directories(MyLib PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  # During build
-    $<INSTALL_INTERFACE:include>                            # After installation
-)
-
-target_compile_features(MyLib PUBLIC cxx_std_23)
-```
-
-**Key Concepts:**
-
-- **BUILD_INTERFACE**: Include paths used when building the project itself
-- **INSTALL_INTERFACE**: Include paths used by external projects after installation
-- **PRIVATE/PUBLIC/INTERFACE**: Controls visibility of properties to consuming targets
-
-#### Header-Only Library
-
-For libraries with only headers (templates, inline functions):
-
-```cmake
-target_add_library(HeaderOnlyLib INTERFACE)
-
-target_include_directories(HeaderOnlyLib INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-)
-
-target_compile_features(HeaderOnlyLib INTERFACE cxx_std_23)
-```
-
-#### Setting C++ Standard
-
-Explicitly set the C++ for all presets you can change this line in ``CMakePresets.json`` for the `base` preset:
-
-```json lines
-  "CMAKE_CXX_STANDARD": "23" -> "20" 
-```
-
-
-### `/tests` - Unit Tests
-
-Write tests in the `tests/` directory using **Catch2**:
-
+Example:
 ```cpp
-#include <catch2/catch_test_macros.hpp>
-
-TEST_CASE("Addition works") {
-    REQUIRE(2 + 2 == 4);
-}
-```
-
-Run tests:
-
-```sh
-ctest --test-dir build
-```
-
-See `tests/TestTypes.hpp` for advanced testing utilities for validating C++ semantics.
-
-### `/bench` - Benchmarks
-
-Use **Google Benchmark** for performance analysis:
-
-```cpp
-#include <benchmark/benchmark.h>
-
-static void BM_MyFunction(benchmark::State& state) {
-    for (auto _ : state) {
-        benchmark::DoNotOptimize(MyFunction());
+class BarnsleyFern : public IFSBackend {
+    void compute(vk::Buffer buffer, uint32_t count, const IFSParameters& params) override {
+        // Implement Barnsley Fern IFS transformations
     }
-}
 
-BENCHMARK(BM_MyFunction)->Range(8, 8<<10);
+    std::vector<UICallback> get_ui_callbacks() override {
+        // Expose fern-specific parameters
+    }
+};
 ```
 
-### `/playground` - Experimentation
+---
 
-Use the `playground/` directory for quick testing and prototyping:
+## Project Structure
 
-```cpp
-#include <print>
-
-int main() {
-    std::println("Quick test here");
-}
+```
+IteratedFunctions/
+├── include/ifs/              # Public headers
+│   ├── IFSBackend.hpp        # Backend interface
+│   ├── IFSFrontend.hpp       # Frontend interface
+│   ├── IFSController.hpp     # Main controller
+│   ├── backends/             # Fractal implementations
+│   │   └── Sierpinski2D.hpp
+│   └── frontends/            # Rendering implementations
+│       └── ParticleRenderer.hpp
+├── src/ifs/                  # Implementation files
+├── shaders/                  # Slang compute/graphics shaders
+│   └── ifs_modular/          # Sierpinski compute shader
+├── playground/               # Example applications
+│   └── ifs_modular_main.cpp  # Main visualizer app
+└── test/                     # Unit tests
 ```
 
-Compile and run:
+---
 
-```sh
-cmake --build build
-./build/playground/playground
-```
+## Technical Details
+
+### Vulkan Compute Pipeline
+
+- **Compute Shader**: Iterates each particle through the IFS transformations in parallel
+- **Storage Buffers**: Particle positions stored in GPU-visible buffers
+- **Synchronization**: Compute → Graphics queue ownership transfer with semaphores
+- **Descriptor Sets**: Dynamic binding for particle buffers, parameters
+
+### Performance
+
+- **50M particles** @ 30 FPS on NVIDIA RTX 4060
+- Logarithmic slider for intuitive particle count adjustment
+
+### Shader System
+
+- **Slang** shaders compiled to SPIR-V
+- Automatic reflection for descriptor set layouts
+- Hot-reloadable (planned feature)
+
+---
+
+
+
+
+## Acknowledgments
+
+- **Vulkan** - High-performance graphics API
+- **ImGui** - Immediate mode UI
+- **GLFW** - Cross-platform windowing
+- **GLM** - Mathematics library
+- **spdlog** - Fast logging
+- **Slang** - Shader compiler with reflection

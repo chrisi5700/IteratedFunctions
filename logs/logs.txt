@@ -46,48 +46,12 @@
 [IteratedFunction][ParticleRenderer.cpp:55]     [ info] Created ParticleRenderer frontend
 [IteratedFunction][ParticleRenderer.cpp:607]    [ info] Frontend swapchain resources recreated for 4 images
 [IteratedFunction][IFSController.cpp:370]       [ info] Starting main loop...
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 100000 -> 7730000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 7730000 particles (235.90087890625 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 7730000 -> 16610000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 16610000 particles (506.89697265625 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 16610000 -> 10000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 10000 particles (0.30517578125 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 10000 -> 1550000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 1550000 particles (47.30224609375 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 1550000 -> 26640000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 26640000 particles (812.98828125 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 26640000 -> 10000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 10000 particles (0.30517578125 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 10000 -> 50000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 50000 particles (1.52587890625 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 50000 -> 500000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 500000 particles (15.2587890625 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 500000 -> 5000000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 5000000 particles (152.587890625 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 5000000 -> 50000000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 50000000 particles (1525.87890625 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
 [IteratedFunction][ParticleRenderer.cpp:607]    [ info] Frontend swapchain resources recreated for 4 images
 [IteratedFunction][Window.cpp:510]              [ info] Swapchain recreated: 1920x1080
 [IteratedFunction][ParticleRenderer.cpp:607]    [ info] Frontend swapchain resources recreated for 4 images
+[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 100000 -> 47880000 particles
+[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 47880000 particles (1461.181640625 MB)
+[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
+[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
 [IteratedFunction][IFSController.cpp:507]       [ info] Shutdown complete
 [IteratedFunction][ifs_modular_main.cpp:61]     [ info] Application exited successfully
