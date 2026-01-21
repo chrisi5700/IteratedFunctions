@@ -3,8 +3,11 @@
 [IteratedFunction][VulkanContext.cpp:111]       [debug] Instance extensions:
 [IteratedFunction][VulkanContext.cpp:113]       [debug]   VK_KHR_surface
 [IteratedFunction][VulkanContext.cpp:113]       [debug]   VK_KHR_xcb_surface
+[IteratedFunction][VulkanContext.cpp:113]       [debug]   VK_EXT_debug_utils
 [IteratedFunction][VulkanContext.cpp:113]       [debug]   VK_KHR_surface
+[IteratedFunction][VulkanContext.cpp:128]       [ info] Validation layers enabled
 [IteratedFunction][VulkanContext.cpp:139]       [debug] Created Vulkan instance
+[IteratedFunction][VulkanContext.cpp:156]       [debug] Created debug messenger
 [IteratedFunction][VulkanContext.cpp:180]       [ info] Selected discrete GPU: NVIDIA GeForce RTX 4060
 [IteratedFunction][VulkanContext.cpp:221]       [debug] Queue families - graphics: 0, compute: 2
 [IteratedFunction][VulkanContext.cpp:271]       [debug] Created logical device
@@ -15,27 +18,42 @@
 [IteratedFunction][Shader.cpp:82]               [debug] Loading shader module 'ifs_modular/backends/sierpinski_2d' with entry point 'main'
 [IteratedFunction][Shader.cpp:25]               [debug] Created Slang global session
 [IteratedFunction][Shader.cpp:45]               [debug] Created SPIR-V session with search path: /home/chris/code/cpp/IteratedFunctions/shaders
+[IteratedFunction][Shader.cpp:116]              [trace] Successfully loaded shader program 'ifs_modular/backends/sierpinski_2d':'main'
+[IteratedFunction][Shader.cpp:134]              [trace] Successfully linked shader program
+[IteratedFunction][Shader.cpp:151]              [trace] Generated SPIR-V code: 4048 bytes
 [IteratedFunction][Shader.cpp:438]              [debug] Shader stage: 6 -> Compute
 [IteratedFunction][Shader.cpp:875]              [debug] ComputeDetails: local_size(1, 1, 1)
+[IteratedFunction][Shader.cpp:419]              [trace] No push constants found
 [IteratedFunction][Shader.cpp:382]              [debug] Extracting descriptors (2 parameters)
+[IteratedFunction][Shader.cpp:367]              [trace]   Binding: set=0 binding=0 name='particles' type=RawBuffer count=1 size=32
+[IteratedFunction][Shader.cpp:367]              [trace]   Binding: set=0 binding=1 name='params' type=ConstantBuffer count=1 size=16
 [IteratedFunction][Shader.cpp:390]              [debug] Extracted 2 descriptor bindings
 [IteratedFunction][Shader.cpp:168]              [debug] Created shader module (4048 bytes)
 [IteratedFunction][Shader.cpp:968]              [ info] Shader 'ifs_modular/backends/sierpinski_2d' created successfully (2 descriptors)
 [IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 100000 particles (3.0517578125 MB)
-[IteratedFunction][ParticleBuffer.cpp:283]      [ info] Initialized particle buffer with random data
 [IteratedFunction][Sierpinski2D.cpp:48]         [ info] Created Sierpinski2D backend
 [IteratedFunction][Shader.cpp:946]              [ info] Creating shader 'ifs_modular/frontends/particle/particle.vert.slang':'main'
 [IteratedFunction][Shader.cpp:82]               [debug] Loading shader module 'ifs_modular/frontends/particle/particle.vert.slang' with entry point 'main'
+[IteratedFunction][Shader.cpp:116]              [trace] Successfully loaded shader program 'ifs_modular/frontends/particle/particle.vert.slang':'main'
+[IteratedFunction][Shader.cpp:134]              [trace] Successfully linked shader program
+[IteratedFunction][Shader.cpp:151]              [trace] Generated SPIR-V code: 1852 bytes
 [IteratedFunction][Shader.cpp:438]              [debug] Shader stage: 1 -> Vertex
 [IteratedFunction][Shader.cpp:713]              [debug] VertexDetails: 0 inputs across 0 bindings, 1 outputs
+[IteratedFunction][Shader.cpp:419]              [trace] No push constants found
 [IteratedFunction][Shader.cpp:382]              [debug] Extracting descriptors (2 parameters)
+[IteratedFunction][Shader.cpp:367]              [trace]   Binding: set=0 binding=0 name='particles' type=RawBuffer count=1 size=32
+[IteratedFunction][Shader.cpp:367]              [trace]   Binding: set=0 binding=1 name='viewParams' type=ConstantBuffer count=1 size=80
 [IteratedFunction][Shader.cpp:390]              [debug] Extracted 2 descriptor bindings
 [IteratedFunction][Shader.cpp:168]              [debug] Created shader module (1852 bytes)
 [IteratedFunction][Shader.cpp:968]              [ info] Shader 'ifs_modular/frontends/particle/particle.vert.slang' created successfully (2 descriptors)
 [IteratedFunction][Shader.cpp:946]              [ info] Creating shader 'ifs_modular/frontends/particle/particle.frag.slang':'main'
 [IteratedFunction][Shader.cpp:82]               [debug] Loading shader module 'ifs_modular/frontends/particle/particle.frag.slang' with entry point 'main'
+[IteratedFunction][Shader.cpp:116]              [trace] Successfully loaded shader program 'ifs_modular/frontends/particle/particle.frag.slang':'main'
+[IteratedFunction][Shader.cpp:134]              [trace] Successfully linked shader program
+[IteratedFunction][Shader.cpp:151]              [trace] Generated SPIR-V code: 368 bytes
 [IteratedFunction][Shader.cpp:438]              [debug] Shader stage: 5 -> Fragment
 [IteratedFunction][Shader.cpp:852]              [debug] FragmentDetails: 1 inputs, 0 outputs
+[IteratedFunction][Shader.cpp:419]              [trace] No push constants found
 [IteratedFunction][Shader.cpp:382]              [debug] Extracting descriptors (0 parameters)
 [IteratedFunction][Shader.cpp:390]              [debug] Extracted 0 descriptor bindings
 [IteratedFunction][Shader.cpp:168]              [debug] Created shader module (368 bytes)
@@ -43,5 +61,17 @@
 [IteratedFunction][ParticleRenderer.cpp:55]     [ info] Created ParticleRenderer frontend
 [IteratedFunction][ParticleRenderer.cpp:620]    [ info] Frontend swapchain resources recreated for 4 images
 [IteratedFunction][IFSController.cpp:371]       [ info] Starting main loop...
+[IteratedFunction][ParticleRenderer.cpp:620]    [ info] Frontend swapchain resources recreated for 4 images
+[IteratedFunction][Window.cpp:540]              [ info] Swapchain recreated: 1920x1080
+[IteratedFunction][ParticleRenderer.cpp:620]    [ info] Frontend swapchain resources recreated for 4 images
+[IteratedFunction][Sierpinski2D.cpp:535]        [ info] Reallocating particle buffer: 100000 -> 97680000 particles
+[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 97680000 particles (2980.95703125 MB)
+[IteratedFunction][Sierpinski2D.cpp:575]        [ info] Particle buffer reallocated successfully
 [IteratedFunction][IFSController.cpp:509]       [ info] Shutdown complete
 [IteratedFunction][ifs_modular_main.cpp:61]     [ info] Application exited successfully
+[IteratedFunction][Shader.cpp:1006]             [trace] Destroyed shader module
+[IteratedFunction][Shader.cpp:1006]             [trace] Destroyed shader module
+[IteratedFunction][Shader.cpp:1006]             [trace] Destroyed shader module
+[IteratedFunction][VulkanContext.cpp:295]       [trace] Destroyed logical device
+[IteratedFunction][VulkanContext.cpp:165]       [trace] Destroyed debug messenger
+[IteratedFunction][VulkanContext.cpp:302]       [trace] Destroyed instance

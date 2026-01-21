@@ -120,14 +120,14 @@ std::expected<void, std::string> IFSController::initialize() {
     m_camera = std::make_unique<Camera3D>(m_config.window_width, m_config.window_height);
 
     // Set up input handling
-    m_mouse_captured = true;  // Start with mouse captured
+    m_mouse_captured = false;  // Start with mouse not captured
     glfwSetWindowUserPointer(m_window->get_window_handle(), this);
     glfwSetKeyCallback(m_window->get_window_handle(), glfw_key_callback);
     glfwSetCursorPosCallback(m_window->get_window_handle(), glfw_mouse_callback);
     glfwSetScrollCallback(m_window->get_window_handle(), glfw_scroll_callback);
 
     // Enable mouse capture at startup
-    glfwSetInputMode(m_window->get_window_handle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(m_window->get_window_handle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     // Setup ImGui
     if (auto result = setup_imgui(); !result) {

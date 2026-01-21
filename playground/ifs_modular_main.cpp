@@ -10,7 +10,7 @@
 #include <spdlog/spdlog.h>
 
 int main() {
-    Logger::instance().set_level(spdlog::level::debug);
+    Logger::instance().set_level(spdlog::level::trace);
     Logger::instance().info("Starting IFS Modular Visualizer...");
 
     try {

@@ -485,14 +485,20 @@ bool Window::present(
         .setSwapchains(m_swapchain)
         .setImageIndices(image_index);
 
-	auto present_result = present_queue.presentKHR(present_info);
+	VkResult result = vkQueuePresentKHR( // This hurts my soul but some genius at vk hpp decided that recreating a swapchain is a fatal error
+	present_queue,
+	reinterpret_cast<const VkPresentInfoKHR*>(&present_info)
+	);
+
+	vk::Result present_result = static_cast<vk::Result>(result);
+
 	if (present_result == vk::Result::eErrorOutOfDateKHR)
 	{
 		// Swapchain is out of date, will be recreated on next acquire
 		m_needs_resize = true;
 		return false;
 	}
-	else if (present_result != vk::Result::eSuccess && present_result != vk::Result::eSuboptimalKHR)
+	if (present_result != vk::Result::eSuccess && present_result != vk::Result::eSuboptimalKHR)
 	{
 		Logger::instance().error("presentKHR error: {}", to_string(present_result));
 		return false;

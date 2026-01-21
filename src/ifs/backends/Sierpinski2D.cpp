@@ -57,33 +57,20 @@ Sierpinski2D::Sierpinski2D(Sierpinski2D&& other) noexcept
     : m_context(other.m_context)
     , m_device(other.m_device)
     , m_particle_buffer(std::move(other.m_particle_buffer))
-    , m_particle_count(other.m_particle_count)
+    , m_particle_count(std::exchange(other.m_particle_count, 0))
     , m_compute_shader(std::move(other.m_compute_shader))
-    , m_descriptor_layout(other.m_descriptor_layout)
-    , m_pipeline_layout(other.m_pipeline_layout)
-    , m_compute_pipeline(other.m_compute_pipeline)
-    , m_descriptor_pool(other.m_descriptor_pool)
-    , m_descriptor_set(other.m_descriptor_set)
-    , m_param_buffer(other.m_param_buffer)
-    , m_param_memory(other.m_param_memory)
-    , m_compute_command_pool(other.m_compute_command_pool)
-    , m_compute_command_buffer(other.m_compute_command_buffer)
-    , m_compute_fence(other.m_compute_fence)
-    , m_compute_queue(other.m_compute_queue)
-{
-    other.m_particle_count = 0;
-    other.m_descriptor_layout = nullptr;
-    other.m_pipeline_layout = nullptr;
-    other.m_compute_pipeline = nullptr;
-    other.m_descriptor_pool = nullptr;
-    other.m_descriptor_set = nullptr;
-    other.m_param_buffer = nullptr;
-    other.m_param_memory = nullptr;
-    other.m_compute_command_pool = nullptr;
-    other.m_compute_command_buffer = nullptr;
-    other.m_compute_fence = nullptr;
-    other.m_compute_queue = nullptr;
-}
+    , m_descriptor_layout(std::exchange(other.m_descriptor_layout, nullptr))
+    , m_pipeline_layout(std::exchange(other.m_pipeline_layout, nullptr))
+    , m_compute_pipeline(std::exchange(other.m_compute_pipeline, nullptr))
+    , m_descriptor_pool(std::exchange(other.m_descriptor_pool, nullptr))
+    , m_descriptor_set(std::exchange(other.m_descriptor_set, nullptr))
+    , m_param_buffer(std::exchange(other.m_param_buffer, nullptr))
+    , m_param_memory(std::exchange(other.m_param_memory, nullptr))
+    , m_compute_command_pool(std::exchange(other.m_compute_command_pool, nullptr))
+    , m_compute_command_buffer(std::exchange(other.m_compute_command_buffer, nullptr))
+    , m_compute_fence(std::exchange(other.m_compute_fence, nullptr))
+    , m_compute_queue(std::exchange(other.m_compute_queue, nullptr))
+{}
 
 Sierpinski2D& Sierpinski2D::operator=(Sierpinski2D&& other) noexcept {
     if (this != &other) {
@@ -92,31 +79,21 @@ Sierpinski2D& Sierpinski2D::operator=(Sierpinski2D&& other) noexcept {
         m_context = other.m_context;
         m_device = other.m_device;
         m_particle_buffer = std::move(other.m_particle_buffer);
-        m_particle_count = other.m_particle_count;
+        m_particle_count = std::exchange(other.m_particle_count, 0);
         m_compute_shader = std::move(other.m_compute_shader);
-        m_descriptor_layout = other.m_descriptor_layout;
-        m_pipeline_layout = other.m_pipeline_layout;
-        m_compute_pipeline = other.m_compute_pipeline;
-        m_descriptor_pool = other.m_descriptor_pool;
-        m_descriptor_set = other.m_descriptor_set;
-        m_param_buffer = other.m_param_buffer;
-        m_param_memory = other.m_param_memory;
-        m_compute_command_pool = other.m_compute_command_pool;
-        m_compute_command_buffer = other.m_compute_command_buffer;
-        m_compute_fence = other.m_compute_fence;
-        m_compute_queue = other.m_compute_queue;
+        m_descriptor_layout = std::exchange(other.m_descriptor_layout, nullptr);
+        m_pipeline_layout = std::exchange(other.m_pipeline_layout, nullptr);
+        m_compute_pipeline = std::exchange(other.m_compute_pipeline, nullptr);
+        m_descriptor_pool = std::exchange(other.m_descriptor_pool, nullptr);
+        m_descriptor_set = std::exchange(other.m_descriptor_set, nullptr);
+        m_param_buffer = std::exchange(other.m_param_buffer, nullptr);
+        m_param_memory = std::exchange(other.m_param_memory, nullptr);
+        m_compute_command_pool = std::exchange(other.m_compute_command_pool, nullptr);
+        m_compute_command_buffer = std::exchange(other.m_compute_command_buffer, nullptr);
+        m_compute_fence = std::exchange(other.m_compute_fence, nullptr);
+        m_compute_queue = std::exchange(other.m_compute_queue, nullptr);
 
-        other.m_descriptor_layout = nullptr;
-        other.m_pipeline_layout = nullptr;
-        other.m_compute_pipeline = nullptr;
-        other.m_descriptor_pool = nullptr;
-        other.m_descriptor_set = nullptr;
-        other.m_param_buffer = nullptr;
-        other.m_param_memory = nullptr;
-        other.m_compute_command_pool = nullptr;
-        other.m_compute_command_buffer = nullptr;
-        other.m_compute_fence = nullptr;
-        other.m_compute_queue = nullptr;
+
     }
     return *this;
 }
@@ -294,11 +271,7 @@ std::expected<void, std::string> Sierpinski2D::initialize() {
     }
     m_particle_buffer = std::make_unique<ParticleBuffer>(std::move(particle_buffer_result.value()));
 
-    // Initialize with random data
-    std::random_device rd;
-    if (auto result = m_particle_buffer->initialize_random(m_compute_command_pool, m_compute_queue, rd()); !result) {
-        return std::unexpected(std::format("Failed to initialize particle buffer: {}", result.error()));
-    }
+
 
     // Update descriptor set with particle buffer
     auto particle_buffer_info = vk::DescriptorBufferInfo()
@@ -581,12 +554,7 @@ void Sierpinski2D::reallocate_particle_buffer(uint32_t new_count) {
     }
     m_particle_buffer = std::make_unique<ParticleBuffer>(std::move(particle_buffer_result.value()));
 
-    // Initialize with random data
-    std::random_device rd;
-    if (auto result = m_particle_buffer->initialize_random(m_compute_command_pool, m_compute_queue, rd()); !result) {
-        Logger::instance().error("Failed to initialize particle buffer: {}", result.error());
-        return;
-    }
+
 
     // Update descriptor set with new particle buffer
     auto particle_buffer_info = vk::DescriptorBufferInfo()

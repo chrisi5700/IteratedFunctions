@@ -145,6 +145,7 @@ IteratedFunctions/
 
 
 
+
 ## Acknowledgments
 
 - **Vulkan** - High-performance graphics API
@@ -153,3 +154,12 @@ IteratedFunctions/
 - **GLM** - Mathematics library
 - **spdlog** - Fast logging
 - **Slang** - Shader compiler with reflection
+
+---
+
+## What I learned
+
+I think it should probably create a template for Vulkan projects in general. Clean up does not play nice with the 
+``std::expected`` controlflow when objects don't use RAII. I could alternatively have used ``vk::raii`` but the size overhead
+in each object does not feel right. I think higher level abstractions should work without wasting too much space since 
+lifetimes are often shared. 
