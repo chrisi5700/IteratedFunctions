@@ -21,4 +21,16 @@ struct overloaded : Fs...
 template<class... Fs>
 overloaded(Fs...) -> overloaded<Fs...>;
 
+#define CHECK_VK_RESULT(res, msg) \
+if (res.result != vk::Result::eSuccess) \
+{ \
+	return std::unexpected(std::format(msg, to_string(res.result))); \
+} \
+
+#define CHECK_VK_RESULT_VOID(res, msg) \
+if (res != vk::Result::eSuccess) \
+{ \
+return std::unexpected(std::format(msg, to_string(res))); \
+} \
+
 #endif // ITERATEDFUNCTIONS_COMMON_HPP

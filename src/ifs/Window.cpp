@@ -186,19 +186,23 @@ std::expected<void, std::string> Window::create_swapchain() {
     auto physical_device = m_context->physical_device();
 
     // Query swapchain support
-    auto surface_capabilities = physical_device.getSurfaceCapabilitiesKHR(m_surface);
-    auto surface_formats = physical_device.getSurfaceFormatsKHR(m_surface);
-    auto present_modes = physical_device.getSurfacePresentModesKHR(m_surface);
+    auto surface_capabilities_res = physical_device.getSurfaceCapabilitiesKHR(m_surface);
+    auto surface_formats_res = physical_device.getSurfaceFormatsKHR(m_surface);
+    auto present_modes_res = physical_device.getSurfacePresentModesKHR(m_surface);
 
-    if (surface_formats.empty() || present_modes.empty()) {
+    if (surface_formats_res.result != vk::Result::eSuccess or
+    	present_modes_res.result != vk::Result::eSuccess or
+    	surface_capabilities_res.result != vk::Result::eSuccess) {
         return std::unexpected("Inadequate swapchain support");
     }
 
     // Choose format, present mode, and extent
-    m_surface_format = choose_surface_format(surface_formats);
-    m_present_mode = choose_present_mode(present_modes);
-    m_extent = choose_extent(surface_capabilities);
 
+    m_surface_format = choose_surface_format(surface_formats_res.value);
+    m_present_mode = choose_present_mode(present_modes_res.value);
+    m_extent = choose_extent(surface_capabilities_res.value);
+
+	auto surface_capabilities = surface_capabilities_res.value;
     // Determine image count
     uint32_t image_count = surface_capabilities.minImageCount + 1;
     if (surface_capabilities.maxImageCount > 0 &&
@@ -221,8 +225,12 @@ std::expected<void, std::string> Window::create_swapchain() {
         .setPresentMode(m_present_mode)
         .setClipped(true);
 
-    m_swapchain = m_device.createSwapchainKHR(swapchain_info);
-    m_swapchain_images = m_device.getSwapchainImagesKHR(m_swapchain);
+	auto swapchain_res = m_device.createSwapchainKHR(swapchain_info);
+	CHECK_VK_RESULT(swapchain_res, "Could not create swapchain {}");
+    m_swapchain = swapchain_res.value;
+	auto swapchain_imgs_res = m_device.getSwapchainImagesKHR(m_swapchain);
+	CHECK_VK_RESULT(swapchain_imgs_res, "Could not get swapchain images {}");
+    m_swapchain_images = swapchain_imgs_res.value;
 
     // Create image views
     m_image_views.clear();
@@ -237,7 +245,9 @@ std::expected<void, std::string> Window::create_swapchain() {
                 .setLevelCount(1)
                 .setBaseArrayLayer(0)
                 .setLayerCount(1));
-        m_image_views.push_back(m_device.createImageView(view_info));
+    	auto img_view_res = m_device.createImageView(view_info);
+    	CHECK_VK_RESULT(img_view_res, "Could not create image view {}");
+        m_image_views.push_back(std::move(img_view_res.value));
     }
 
     return {};
@@ -297,7 +307,9 @@ std::expected<void, std::string> Window::create_render_pass() {
         .setSubpasses(subpass)
         .setDependencies(dependency);
 
-    m_render_pass = m_device.createRenderPass(render_pass_info);
+	auto render_pass_res = m_device.createRenderPass(render_pass_info);
+	CHECK_VK_RESULT(render_pass_res, "Could not create render pass");
+    m_render_pass = render_pass_res.value;
     return {};
 }
 
@@ -312,7 +324,9 @@ std::expected<void, std::string> Window::create_framebuffers() {
             .setWidth(m_extent.width)
             .setHeight(m_extent.height)
             .setLayers(1);
-        m_framebuffers.push_back(m_device.createFramebuffer(framebuffer_info));
+    	auto frame_buffer_res = m_device.createFramebuffer(framebuffer_info);
+    	CHECK_VK_RESULT(frame_buffer_res, "Could not create framebuffer {}");
+        m_framebuffers.push_back(std::move(frame_buffer_res.value));
     }
     return {};
 }
@@ -333,7 +347,9 @@ std::expected<void, std::string> Window::create_depth_resources() {
         .setSharingMode(vk::SharingMode::eExclusive)
         .setSamples(vk::SampleCountFlagBits::e1);
 
-    m_depth_image = m_device.createImage(image_info);
+	auto img_res  = m_device.createImage(image_info);
+	CHECK_VK_RESULT(img_res, "Could not create image {}");
+    m_depth_image = img_res.value;
 
     // Allocate memory for depth image
     auto mem_requirements = m_device.getImageMemoryRequirements(m_depth_image);
@@ -358,9 +374,11 @@ std::expected<void, std::string> Window::create_depth_resources() {
         .setAllocationSize(mem_requirements.size)
         .setMemoryTypeIndex(memory_type_index);
 
-    m_depth_memory = m_device.allocateMemory(alloc_info);
-    m_device.bindImageMemory(m_depth_image, m_depth_memory, 0);
-
+	auto depth_mem_res = m_device.allocateMemory(alloc_info);
+	CHECK_VK_RESULT(depth_mem_res, "Could not allocate depth memory {}");
+    m_depth_memory = depth_mem_res.value;
+    auto bind_res = m_device.bindImageMemory(m_depth_image, m_depth_memory, 0);
+	CHECK_VK_RESULT_VOID(bind_res, "Could not bind depth image memory {}");
     // Create depth image view
     auto view_info = vk::ImageViewCreateInfo()
         .setImage(m_depth_image)
@@ -372,8 +390,9 @@ std::expected<void, std::string> Window::create_depth_resources() {
             .setLevelCount(1)
             .setBaseArrayLayer(0)
             .setLayerCount(1));
-
-    m_depth_image_view = m_device.createImageView(view_info);
+	auto img_view_res = m_device.createImageView(view_info);
+	CHECK_VK_RESULT(img_view_res, "Could not create image view {}");
+    m_depth_image_view = img_view_res.value;
     return {};
 }
 
@@ -411,7 +430,8 @@ std::optional<uint32_t> Window::acquire_next_image(
 ) {
     // Check if resize is needed
     if (m_needs_resize) {
-        m_device.waitIdle();
+        auto _ = m_device.waitIdle(); // Semantically makes no sense to error here
+
         if (auto result = recreate_swapchain(); !result) {
             Logger::instance().error("Failed to recreate swapchain: {}", result.error());
             return std::nullopt;
@@ -421,23 +441,25 @@ std::optional<uint32_t> Window::acquire_next_image(
     }
 
     uint32_t image_index;
-    vk::Result acquire_result;
 
-    try {
-        auto result = m_device.acquireNextImageKHR(m_swapchain, timeout, signal_semaphore, nullptr);
-        acquire_result = result.result;
-        image_index = result.value;
-    } catch (const vk::OutOfDateKHRError&) {
-        acquire_result = vk::Result::eErrorOutOfDateKHR;
-    } catch (const vk::SystemError& e) {
-        Logger::instance().error("acquireNextImageKHR error: {}", e.what());
-        return std::nullopt;
-    }
+	auto next_img_res = m_device.acquireNextImageKHR(m_swapchain, timeout, signal_semaphore, nullptr);
+	vk::Result acquire_result = next_img_res.result;
+	if (acquire_result == vk::Result::eSuccess ||
+	    acquire_result == vk::Result::eErrorOutOfDateKHR ||
+	    acquire_result == vk::Result::eSuboptimalKHR)
+	{
+		image_index = next_img_res.value;
+	}
+	else
+	{
+		Logger::instance().error("acquireNextImageKHR error: {}", to_string(acquire_result));
+		return std::nullopt;
+	}
 
     // Handle swapchain recreation
     if (acquire_result == vk::Result::eErrorOutOfDateKHR ||
         acquire_result == vk::Result::eSuboptimalKHR) {
-        m_device.waitIdle();
+        auto _ = m_device.waitIdle();
         if (auto result = recreate_swapchain(); !result) {
             Logger::instance().error("Failed to recreate swapchain: {}", result.error());
             return std::nullopt;
@@ -463,18 +485,20 @@ bool Window::present(
         .setSwapchains(m_swapchain)
         .setImageIndices(image_index);
 
-    try {
-        [[maybe_unused]] auto present_result = present_queue.presentKHR(present_info);
-        // If suboptimal, we'll handle it on next acquire
-        return true;
-    } catch (const vk::OutOfDateKHRError&) {
-        // Swapchain is out of date, will be recreated on next acquire
-        m_needs_resize = true;
-        return false;
-    } catch (const vk::SystemError& e) {
-        Logger::instance().error("presentKHR error: {}", e.what());
-        return false;
-    }
+	auto present_result = present_queue.presentKHR(present_info);
+	if (present_result == vk::Result::eErrorOutOfDateKHR)
+	{
+		// Swapchain is out of date, will be recreated on next acquire
+		m_needs_resize = true;
+		return false;
+	}
+	else if (present_result != vk::Result::eSuccess && present_result != vk::Result::eSuboptimalKHR)
+	{
+		Logger::instance().error("presentKHR error: {}", to_string(present_result));
+		return false;
+	}
+	// If suboptimal, we'll handle it on next acquire
+	return true;
 }
 
 std::expected<void, std::string> Window::recreate_swapchain() {

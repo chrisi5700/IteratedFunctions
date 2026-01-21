@@ -1,92 +1,47 @@
 [IteratedFunction][ifs_modular_main.cpp:14]     [ info] Starting IFS Modular Visualizer...
 [IteratedFunction][IFSController.cpp:95]        [ info] Initializing IFS Controller...
-[IteratedFunction][VulkanContext.cpp:107]       [debug] Instance extensions:
-[IteratedFunction][VulkanContext.cpp:109]       [debug]   VK_KHR_surface
-[IteratedFunction][VulkanContext.cpp:109]       [debug]   VK_KHR_xcb_surface
-[IteratedFunction][VulkanContext.cpp:109]       [debug]   VK_KHR_surface
-[IteratedFunction][VulkanContext.cpp:130]       [debug] Created Vulkan instance
-[IteratedFunction][VulkanContext.cpp:162]       [ info] Selected discrete GPU: NVIDIA GeForce RTX 4060
-[IteratedFunction][VulkanContext.cpp:203]       [debug] Queue families - graphics: 0, compute: 2
-[IteratedFunction][VulkanContext.cpp:249]       [debug] Created logical device
-[IteratedFunction][VulkanContext.cpp:264]       [ info] VulkanContext VK_HEADER_VERSION: 309
-[IteratedFunction][VulkanContext.cpp:265]       [ info] VulkanContext initialized
+[IteratedFunction][VulkanContext.cpp:111]       [debug] Instance extensions:
+[IteratedFunction][VulkanContext.cpp:113]       [debug]   VK_KHR_surface
+[IteratedFunction][VulkanContext.cpp:113]       [debug]   VK_KHR_xcb_surface
+[IteratedFunction][VulkanContext.cpp:113]       [debug]   VK_KHR_surface
+[IteratedFunction][VulkanContext.cpp:139]       [debug] Created Vulkan instance
+[IteratedFunction][VulkanContext.cpp:180]       [ info] Selected discrete GPU: NVIDIA GeForce RTX 4060
+[IteratedFunction][VulkanContext.cpp:221]       [debug] Queue families - graphics: 0, compute: 2
+[IteratedFunction][VulkanContext.cpp:271]       [debug] Created logical device
+[IteratedFunction][VulkanContext.cpp:286]       [ info] VulkanContext VK_HEADER_VERSION: 309
+[IteratedFunction][VulkanContext.cpp:287]       [ info] VulkanContext initialized
 [IteratedFunction][IFSController.cpp:137]       [ info] IFS Controller initialized successfully
-[IteratedFunction][Shader.cpp:940]              [ info] Creating shader 'ifs_modular/backends/sierpinski_2d':'main'
+[IteratedFunction][Shader.cpp:946]              [ info] Creating shader 'ifs_modular/backends/sierpinski_2d':'main'
 [IteratedFunction][Shader.cpp:82]               [debug] Loading shader module 'ifs_modular/backends/sierpinski_2d' with entry point 'main'
 [IteratedFunction][Shader.cpp:25]               [debug] Created Slang global session
 [IteratedFunction][Shader.cpp:45]               [debug] Created SPIR-V session with search path: /home/chris/code/cpp/IteratedFunctions/shaders
-[IteratedFunction][Shader.cpp:432]              [debug] Shader stage: 6 -> Compute
-[IteratedFunction][Shader.cpp:869]              [debug] ComputeDetails: local_size(1, 1, 1)
-[IteratedFunction][Shader.cpp:376]              [debug] Extracting descriptors (2 parameters)
-[IteratedFunction][Shader.cpp:384]              [debug] Extracted 2 descriptor bindings
-[IteratedFunction][Shader.cpp:163]              [debug] Created shader module (4048 bytes)
-[IteratedFunction][Shader.cpp:962]              [ info] Shader 'ifs_modular/backends/sierpinski_2d' created successfully (2 descriptors)
+[IteratedFunction][Shader.cpp:438]              [debug] Shader stage: 6 -> Compute
+[IteratedFunction][Shader.cpp:875]              [debug] ComputeDetails: local_size(1, 1, 1)
+[IteratedFunction][Shader.cpp:382]              [debug] Extracting descriptors (2 parameters)
+[IteratedFunction][Shader.cpp:390]              [debug] Extracted 2 descriptor bindings
+[IteratedFunction][Shader.cpp:168]              [debug] Created shader module (4048 bytes)
+[IteratedFunction][Shader.cpp:968]              [ info] Shader 'ifs_modular/backends/sierpinski_2d' created successfully (2 descriptors)
 [IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 100000 particles (3.0517578125 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
+[IteratedFunction][ParticleBuffer.cpp:283]      [ info] Initialized particle buffer with random data
 [IteratedFunction][Sierpinski2D.cpp:48]         [ info] Created Sierpinski2D backend
-[IteratedFunction][Shader.cpp:940]              [ info] Creating shader 'ifs_modular/frontends/particle/particle.vert.slang':'main'
+[IteratedFunction][Shader.cpp:946]              [ info] Creating shader 'ifs_modular/frontends/particle/particle.vert.slang':'main'
 [IteratedFunction][Shader.cpp:82]               [debug] Loading shader module 'ifs_modular/frontends/particle/particle.vert.slang' with entry point 'main'
-[IteratedFunction][Shader.cpp:432]              [debug] Shader stage: 1 -> Vertex
-[IteratedFunction][Shader.cpp:707]              [debug] VertexDetails: 0 inputs across 0 bindings, 1 outputs
-[IteratedFunction][Shader.cpp:376]              [debug] Extracting descriptors (2 parameters)
-[IteratedFunction][Shader.cpp:384]              [debug] Extracted 2 descriptor bindings
-[IteratedFunction][Shader.cpp:163]              [debug] Created shader module (1852 bytes)
-[IteratedFunction][Shader.cpp:962]              [ info] Shader 'ifs_modular/frontends/particle/particle.vert.slang' created successfully (2 descriptors)
-[IteratedFunction][Shader.cpp:940]              [ info] Creating shader 'ifs_modular/frontends/particle/particle.frag.slang':'main'
+[IteratedFunction][Shader.cpp:438]              [debug] Shader stage: 1 -> Vertex
+[IteratedFunction][Shader.cpp:713]              [debug] VertexDetails: 0 inputs across 0 bindings, 1 outputs
+[IteratedFunction][Shader.cpp:382]              [debug] Extracting descriptors (2 parameters)
+[IteratedFunction][Shader.cpp:390]              [debug] Extracted 2 descriptor bindings
+[IteratedFunction][Shader.cpp:168]              [debug] Created shader module (1852 bytes)
+[IteratedFunction][Shader.cpp:968]              [ info] Shader 'ifs_modular/frontends/particle/particle.vert.slang' created successfully (2 descriptors)
+[IteratedFunction][Shader.cpp:946]              [ info] Creating shader 'ifs_modular/frontends/particle/particle.frag.slang':'main'
 [IteratedFunction][Shader.cpp:82]               [debug] Loading shader module 'ifs_modular/frontends/particle/particle.frag.slang' with entry point 'main'
-[IteratedFunction][Shader.cpp:432]              [debug] Shader stage: 5 -> Fragment
-[IteratedFunction][Shader.cpp:846]              [debug] FragmentDetails: 1 inputs, 0 outputs
-[IteratedFunction][Shader.cpp:376]              [debug] Extracting descriptors (0 parameters)
-[IteratedFunction][Shader.cpp:384]              [debug] Extracted 0 descriptor bindings
-[IteratedFunction][Shader.cpp:163]              [debug] Created shader module (368 bytes)
-[IteratedFunction][Shader.cpp:962]              [ info] Shader 'ifs_modular/frontends/particle/particle.frag.slang' created successfully (0 descriptors)
+[IteratedFunction][Shader.cpp:438]              [debug] Shader stage: 5 -> Fragment
+[IteratedFunction][Shader.cpp:852]              [debug] FragmentDetails: 1 inputs, 0 outputs
+[IteratedFunction][Shader.cpp:382]              [debug] Extracting descriptors (0 parameters)
+[IteratedFunction][Shader.cpp:390]              [debug] Extracted 0 descriptor bindings
+[IteratedFunction][Shader.cpp:168]              [debug] Created shader module (368 bytes)
+[IteratedFunction][Shader.cpp:968]              [ info] Shader 'ifs_modular/frontends/particle/particle.frag.slang' created successfully (0 descriptors)
 [IteratedFunction][ParticleRenderer.cpp:55]     [ info] Created ParticleRenderer frontend
-[IteratedFunction][ParticleRenderer.cpp:607]    [ info] Frontend swapchain resources recreated for 4 images
-[IteratedFunction][IFSController.cpp:370]       [ info] Starting main loop...
-[IteratedFunction][ParticleRenderer.cpp:607]    [ info] Frontend swapchain resources recreated for 4 images
-[IteratedFunction][Window.cpp:510]              [ info] Swapchain recreated: 1920x1080
-[IteratedFunction][ParticleRenderer.cpp:607]    [ info] Frontend swapchain resources recreated for 4 images
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 100000 -> 41580000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 41580000 particles (1268.9208984375 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][ParticleRenderer.cpp:607]    [ info] Frontend swapchain resources recreated for 4 images
-[IteratedFunction][Window.cpp:510]              [ info] Swapchain recreated: 1280x720
-[IteratedFunction][ParticleRenderer.cpp:607]    [ info] Frontend swapchain resources recreated for 4 images
-[IteratedFunction][ParticleRenderer.cpp:607]    [ info] Frontend swapchain resources recreated for 4 images
-[IteratedFunction][Window.cpp:510]              [ info] Swapchain recreated: 1920x1080
-[IteratedFunction][ParticleRenderer.cpp:607]    [ info] Frontend swapchain resources recreated for 4 images
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 41580000 -> 51050000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 51050000 particles (1557.92236328125 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 51050000 -> 5050000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 5050000 particles (154.11376953125 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 5050000 -> 50000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 50000 particles (1.52587890625 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 50000 -> 1050000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 1050000 particles (32.04345703125 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 1050000 -> 10050000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 10050000 particles (306.70166015625 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 10050000 -> 100000000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 100000000 particles (3051.7578125 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 100000000 -> 10000000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 10000000 particles (305.17578125 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][Sierpinski2D.cpp:548]        [ info] Reallocating particle buffer: 10000000 -> 100000000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 100000000 particles (3051.7578125 MB)
-[IteratedFunction][ParticleBuffer.cpp:281]      [ info] Initialized particle buffer with random data
-[IteratedFunction][Sierpinski2D.cpp:593]        [ info] Particle buffer reallocated successfully
-[IteratedFunction][IFSController.cpp:507]       [ info] Shutdown complete
+[IteratedFunction][ParticleRenderer.cpp:620]    [ info] Frontend swapchain resources recreated for 4 images
+[IteratedFunction][IFSController.cpp:371]       [ info] Starting main loop...
+[IteratedFunction][IFSController.cpp:509]       [ info] Shutdown complete
 [IteratedFunction][ifs_modular_main.cpp:61]     [ info] Application exited successfully

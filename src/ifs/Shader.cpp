@@ -159,9 +159,15 @@ vk::ShaderModule create_shader_module(vk::Device device, slang::IBlob* spirv)
 						   .setCodeSize(spirv->getBufferSize())
 						   .setPCode(static_cast<const uint32_t*>(spirv->getBufferPointer()));
 
-	auto module = device.createShaderModule(create_info);
-	Logger::instance().debug("Created shader module ({} bytes)", spirv->getBufferSize());
-	return module;
+	auto module_res = device.createShaderModule(create_info);
+	if (module_res.result != vk::Result::eSuccess)
+	{
+		Logger::instance().error("Failed to create Shader Module {}", to_string(module_res.result));
+	} else
+	{
+		Logger::instance().debug("Created shader module ({} bytes)", spirv->getBufferSize());
+	}
+	return module_res.value; // TODO Probably make this std::expected as well
 }
 
 } // anonymous namespace

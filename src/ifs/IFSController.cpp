@@ -164,11 +164,12 @@ std::expected<void, std::string> IFSController::setup_imgui() {
         .setMaxSets(1000)
         .setPoolSizes(pool_sizes);
 
-    try {
-        m_imgui_descriptor_pool = m_context->device().createDescriptorPool(imgui_pool_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create ImGui descriptor pool: {}", e.what()));
-    }
+	auto imgui_pool_res = m_context->device().createDescriptorPool(imgui_pool_info);
+	if (imgui_pool_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create ImGui descriptor pool: {}", to_string(imgui_pool_res.result)));
+	}
+	m_imgui_descriptor_pool = imgui_pool_res.value;
 
     ImGui_ImplGlfw_InitForVulkan(m_window->get_window_handle(), true);
 
@@ -388,7 +389,8 @@ std::expected<void, std::string> IFSController::run() {
     // Create image available semaphores (one per swapchain image)
     std::vector<vk::Semaphore> image_available_sems;
     for (uint32_t i = 0; i < m_window->image_count(); i++) {
-        image_available_sems.push_back(m_context->device().createSemaphore({}));
+    	auto semaphore_res = m_context->device().createSemaphore({});
+        image_available_sems.push_back(std::move(semaphore_res.value));
     }
 
     // Delta time tracking
@@ -423,7 +425,7 @@ std::expected<void, std::string> IFSController::run() {
         if (m_needs_buffer_rebind) {
             // Wait for all GPU work to complete before updating descriptor sets
             // (descriptor sets cannot be updated while in use by pending command buffers)
-            m_context->device().waitIdle();
+            auto _ = m_context->device().waitIdle();
 
             // Update frontend's descriptor set with (potentially new) particle buffer
             if (auto* particle_renderer = dynamic_cast<ParticleRenderer*>(m_frontend.get())) {
@@ -497,7 +499,7 @@ std::expected<void, std::string> IFSController::run() {
     }
 
     // Wait for all operations to complete before cleanup
-    m_context->device().waitIdle();
+    auto _ = m_context->device().waitIdle();
 
     // Cleanup semaphores
     for (auto& sem : image_available_sems) {
@@ -510,7 +512,7 @@ std::expected<void, std::string> IFSController::run() {
 
 void IFSController::cleanup() {
     if (m_context && m_context->device()) {
-        m_context->device().waitIdle();
+        auto _ = m_context->device().waitIdle();
     }
 
     // Cleanup ImGui

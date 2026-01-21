@@ -81,11 +81,12 @@ std::expected<void, std::string> ParticleBuffer::create_buffer() {
                   m_config.additional_usage_flags)
         .setSharingMode(vk::SharingMode::eExclusive);
 
-    try {
-        m_buffer = m_device.createBuffer(buffer_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create buffer: {}", e.what()));
-    }
+	auto buffer_res = m_device.createBuffer(buffer_info);
+	if (buffer_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create buffer: {}", to_string(buffer_res.result)));
+	}
+	m_buffer = buffer_res.value;
 
     // Allocate device-local memory
     auto mem_reqs = m_device.getBufferMemoryRequirements(m_buffer);
@@ -104,14 +105,21 @@ std::expected<void, std::string> ParticleBuffer::create_buffer() {
         .setAllocationSize(mem_reqs.size)
         .setMemoryTypeIndex(*memory_type_result);
 
-    try {
-        m_memory = m_device.allocateMemory(alloc_info);
-        m_device.bindBufferMemory(m_buffer, m_memory, 0);
-    } catch (const vk::SystemError& e) {
-        m_device.destroyBuffer(m_buffer);
-        m_buffer = nullptr;
-        return std::unexpected(std::format("Failed to allocate memory: {}", e.what()));
-    }
+	auto alloc_res = m_device.allocateMemory(alloc_info);
+	if (alloc_res.result != vk::Result::eSuccess)
+	{
+		m_device.destroyBuffer(m_buffer);
+		m_buffer = nullptr;
+		return std::unexpected(std::format("Failed to allocate memory: {}", to_string(alloc_res.result)));
+	}
+	m_memory = alloc_res.value;
+	auto bind_res = m_device.bindBufferMemory(m_buffer, m_memory, 0);
+	if (bind_res != vk::Result::eSuccess)
+	{
+		m_device.destroyBuffer(m_buffer);
+		m_buffer = nullptr;
+		return std::unexpected(std::format("Failed to bind memory: {}", to_string(bind_res)));
+	}
 
     return {};
 }
@@ -185,12 +193,9 @@ std::expected<void, std::string> ParticleBuffer::initialize_random(
         .setUsage(vk::BufferUsageFlagBits::eTransferSrc)
         .setSharingMode(vk::SharingMode::eExclusive);
 
-    vk::Buffer staging_buffer;
-    try {
-        staging_buffer = m_device.createBuffer(staging_buffer_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create staging buffer: {}", e.what()));
-    }
+	auto staging_buffer_res = m_device.createBuffer(staging_buffer_info);
+	CHECK_VK_RESULT(staging_buffer_res, "Failed to create staging buffer {}");
+	vk::Buffer staging_buffer = staging_buffer_res.value;
 
     // Allocate host-visible memory
     auto staging_mem_reqs = m_device.getBufferMemoryRequirements(staging_buffer);
@@ -208,17 +213,24 @@ std::expected<void, std::string> ParticleBuffer::initialize_random(
         .setAllocationSize(staging_mem_reqs.size)
         .setMemoryTypeIndex(*memory_type_result);
 
-    vk::DeviceMemory staging_memory;
-    try {
-        staging_memory = m_device.allocateMemory(staging_alloc_info);
-        m_device.bindBufferMemory(staging_buffer, staging_memory, 0);
-    } catch (const vk::SystemError& e) {
-        m_device.destroyBuffer(staging_buffer);
-        return std::unexpected(std::format("Failed to allocate staging memory: {}", e.what()));
-    }
+	auto staging_mem_res = m_device.allocateMemory(staging_alloc_info);
+	if (staging_mem_res.result != vk::Result::eSuccess)
+	{
+		m_device.destroyBuffer(staging_buffer);
+		return std::unexpected(std::format("Failed to allocate staging memory: {}", to_string(staging_mem_res.result)));
+	}
+	vk::DeviceMemory staging_memory = staging_mem_res.value;
+	auto staging_bind_res = m_device.bindBufferMemory(staging_buffer, staging_memory, 0);
+	if (staging_bind_res != vk::Result::eSuccess)
+	{
+		m_device.destroyBuffer(staging_buffer);
+		return std::unexpected(std::format("Failed to bind staging memory: {}", to_string(staging_bind_res)));
+	}
 
     // Copy particle data to staging buffer
-    void* data = m_device.mapMemory(staging_memory, 0, m_buffer_size);
+	auto mapped_memory_res =  m_device.mapMemory(staging_memory, 0, m_buffer_size);
+	CHECK_VK_RESULT(mapped_memory_res, "Failed to map memory {}");
+    void* data = mapped_memory_res.value;
     std::memcpy(data, particles.data(), m_buffer_size);
     m_device.unmapMemory(staging_memory);
 
@@ -228,50 +240,40 @@ std::expected<void, std::string> ParticleBuffer::initialize_random(
         .setLevel(vk::CommandBufferLevel::ePrimary)
         .setCommandBufferCount(1);
 
-    vk::CommandBuffer cmd;
-    try {
-        cmd = m_device.allocateCommandBuffers(cmd_alloc_info)[0];
-    } catch (const vk::SystemError& e) {
-        m_device.destroyBuffer(staging_buffer);
-        m_device.freeMemory(staging_memory);
-        return std::unexpected(std::format("Failed to allocate command buffer: {}", e.what()));
-    }
+	auto cmd_res = m_device.allocateCommandBuffers(cmd_alloc_info);
+	if (cmd_res.result != vk::Result::eSuccess)
+	{
+		m_device.destroyBuffer(staging_buffer);
+		m_device.freeMemory(staging_memory);
+		return std::unexpected(std::format("Failed to allocate command buffer: {}", to_string(cmd_res.result)));
+	}
+	vk::CommandBuffer cmd = cmd_res.value[0];
 
     // Record transfer command
     auto begin_info = vk::CommandBufferBeginInfo()
         .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
 
-    try {
-        cmd.begin(begin_info);
+	auto cmd_begin_res = cmd.begin(begin_info);
+	CHECK_VK_RESULT_VOID(cmd_begin_res, "Could not cmd.begin {}");
 
-        auto copy_region = vk::BufferCopy()
-            .setSrcOffset(0)
-            .setDstOffset(0)
-            .setSize(m_buffer_size);
+	auto copy_region = vk::BufferCopy()
+		.setSrcOffset(0)
+		.setDstOffset(0)
+		.setSize(m_buffer_size);
 
-        cmd.copyBuffer(staging_buffer, m_buffer, copy_region);
+	cmd.copyBuffer(staging_buffer, m_buffer, copy_region);
 
-        cmd.end();
-    } catch (const vk::SystemError& e) {
-        m_device.freeCommandBuffers(cmd_pool, cmd);
-        m_device.destroyBuffer(staging_buffer);
-        m_device.freeMemory(staging_memory);
-        return std::unexpected(std::format("Failed to record transfer command: {}", e.what()));
-    }
+	auto cmd_end_res = cmd.end();
+	CHECK_VK_RESULT_VOID(cmd_end_res, "Could not cmd.end {}");
 
     // Submit and wait
     auto submit_info = vk::SubmitInfo()
         .setCommandBuffers(cmd);
 
-    try {
-        queue.submit(submit_info);
-        queue.waitIdle();
-    } catch (const vk::SystemError& e) {
-        m_device.freeCommandBuffers(cmd_pool, cmd);
-        m_device.destroyBuffer(staging_buffer);
-        m_device.freeMemory(staging_memory);
-        return std::unexpected(std::format("Failed to submit transfer: {}", e.what()));
-    }
+	auto submit_res = queue.submit(submit_info);
+	CHECK_VK_RESULT_VOID(submit_res, "Could not submit command buffer {}");
+	auto idle_res = queue.waitIdle();
+	CHECK_VK_RESULT_VOID(idle_res, "Could not wait for the idle command buffer {}");
 
     // Cleanup
     m_device.freeCommandBuffers(cmd_pool, cmd);

@@ -149,11 +149,14 @@ std::expected<void, std::string> Sierpinski2D::initialize() {
         .setUsage(vk::BufferUsageFlagBits::eUniformBuffer)
         .setSharingMode(vk::SharingMode::eExclusive);
 
-    try {
-        m_param_buffer = m_device.createBuffer(buffer_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create parameter buffer: {}", e.what()));
-    }
+
+	auto buffer_res =  m_device.createBuffer(buffer_info);
+	if (buffer_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Could not create buffer {}", to_string(buffer_res.result)));
+	}
+	m_param_buffer = buffer_res.value;
+
 
     // Allocate host-visible memory
     auto mem_reqs = m_device.getBufferMemoryRequirements(m_param_buffer);
@@ -180,14 +183,18 @@ std::expected<void, std::string> Sierpinski2D::initialize() {
         .setAllocationSize(mem_reqs.size)
         .setMemoryTypeIndex(memory_type);
 
-    try {
-        m_param_memory = m_device.allocateMemory(alloc_info);
-        m_device.bindBufferMemory(m_param_buffer, m_param_memory, 0);
-    } catch (const vk::SystemError& e) {
-        m_device.destroyBuffer(m_param_buffer);
-        m_param_buffer = nullptr;
-        return std::unexpected(std::format("Failed to allocate parameter memory: {}", e.what()));
+	auto alloc_res = m_device.allocateMemory(alloc_info);
+    if (alloc_res.result != vk::Result::eSuccess)
+    {
+	    return std::unexpected(std::format("Could not allocate device memory {}", to_string(alloc_res.result)));
     }
+	m_param_memory = alloc_res.value;
+	auto bind_res = m_device.bindBufferMemory(m_param_buffer, m_param_memory, 0);
+	if (bind_res != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Could not bind memory to buffer {}", to_string(bind_res)));
+	}
+
 
     // Create descriptor pool
     std::vector<vk::DescriptorPoolSize> pool_sizes = {
@@ -199,22 +206,26 @@ std::expected<void, std::string> Sierpinski2D::initialize() {
         .setMaxSets(1)
         .setPoolSizes(pool_sizes);
 
-    try {
-        m_descriptor_pool = m_device.createDescriptorPool(pool_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create descriptor pool: {}", e.what()));
-    }
+    auto descriptor_pool_res =  m_device.createDescriptorPool(pool_info);
+	if (descriptor_pool_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Could not create descriptor pool {}", to_string(descriptor_pool_res.result)));
+	}
+	m_descriptor_pool = descriptor_pool_res.value;
+
 
     // Allocate descriptor set
     auto alloc_info_desc = vk::DescriptorSetAllocateInfo()
         .setDescriptorPool(m_descriptor_pool)
         .setSetLayouts(m_descriptor_layout);
 
-    try {
-        m_descriptor_set = m_device.allocateDescriptorSets(alloc_info_desc)[0];
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to allocate descriptor set: {}", e.what()));
-    }
+    auto descriptor_set_res = m_device.allocateDescriptorSets(alloc_info_desc);
+	if (descriptor_set_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to allocate descriptor set {}", to_string(descriptor_set_res.result)));
+	}
+	m_descriptor_set = descriptor_set_res.value[0];
+
 
     // Update descriptor set with parameter buffer (particle buffer will be updated in dispatch())
     auto param_buffer_info = vk::DescriptorBufferInfo()
@@ -240,11 +251,12 @@ std::expected<void, std::string> Sierpinski2D::initialize() {
         .setQueueFamilyIndex(m_context->queue_indices().compute)
         .setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 
-    try {
-        m_compute_command_pool = m_device.createCommandPool(cmd_pool_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create compute command pool: {}", e.what()));
-    }
+	auto cmd_pool_res = m_device.createCommandPool(cmd_pool_info);
+	if (cmd_pool_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create compute command pool: {}", to_string(cmd_pool_res.result)));
+	}
+	m_compute_command_pool = cmd_pool_res.value;
 
     // Allocate command buffer
     auto cmd_alloc_info = vk::CommandBufferAllocateInfo()
@@ -252,21 +264,23 @@ std::expected<void, std::string> Sierpinski2D::initialize() {
         .setLevel(vk::CommandBufferLevel::ePrimary)
         .setCommandBufferCount(1);
 
-    try {
-        m_compute_command_buffer = m_device.allocateCommandBuffers(cmd_alloc_info)[0];
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to allocate compute command buffer: {}", e.what()));
-    }
+	auto cmd_buffers_res = m_device.allocateCommandBuffers(cmd_alloc_info);
+	if (cmd_buffers_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to allocate compute command buffer: {}", to_string(cmd_buffers_res.result)));
+	}
+	m_compute_command_buffer = cmd_buffers_res.value[0];
 
     // Create fence for synchronization
     auto fence_info = vk::FenceCreateInfo()
         .setFlags(vk::FenceCreateFlagBits::eSignaled);  // Start signaled
 
-    try {
-        m_compute_fence = m_device.createFence(fence_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create compute fence: {}", e.what()));
-    }
+	auto fence_res = m_device.createFence(fence_info);
+	if (fence_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create compute fence: {}", to_string(fence_res.result)));
+	}
+	m_compute_fence = fence_res.value;
 
     // Create particle buffer with initial particle count
     ParticleBufferConfig buffer_config{
@@ -326,11 +340,12 @@ std::expected<void, std::string> Sierpinski2D::create_descriptor_layout() {
     auto layout_info = vk::DescriptorSetLayoutCreateInfo()
         .setBindings(bindings);
 
-    try {
-        m_descriptor_layout = m_device.createDescriptorSetLayout(layout_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create descriptor layout: {}", e.what()));
-    }
+	auto layout_res = m_device.createDescriptorSetLayout(layout_info);
+	if (layout_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create descriptor layout: {}", to_string(layout_res.result)));
+	}
+	m_descriptor_layout = layout_res.value;
 
     return {};
 }
@@ -344,11 +359,12 @@ std::expected<void, std::string> Sierpinski2D::create_pipeline() {
     auto pipeline_layout_info = vk::PipelineLayoutCreateInfo()
         .setSetLayouts(m_descriptor_layout);
 
-    try {
-        m_pipeline_layout = m_device.createPipelineLayout(pipeline_layout_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create pipeline layout: {}", e.what()));
-    }
+	auto pipeline_layout_res = m_device.createPipelineLayout(pipeline_layout_info);
+	if (pipeline_layout_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create pipeline layout: {}", to_string(pipeline_layout_res.result)));
+	}
+	m_pipeline_layout = pipeline_layout_res.value;
 
     // Get compute shader module and verify it's a compute shader
     auto& shader_details = m_compute_shader->get_details();
@@ -365,16 +381,12 @@ std::expected<void, std::string> Sierpinski2D::create_pipeline() {
         .setStage(stage_info)
         .setLayout(m_pipeline_layout);
 
-    try {
-        auto result = m_device.createComputePipeline(nullptr, pipeline_info);
-        if (result.result != vk::Result::eSuccess) {
-            return std::unexpected(std::format("Failed to create compute pipeline: {}",
-                vk::to_string(result.result)));
-        }
-        m_compute_pipeline = result.value;
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create compute pipeline: {}", e.what()));
-    }
+	auto pipeline_res = m_device.createComputePipeline(nullptr, pipeline_info);
+	if (pipeline_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create compute pipeline: {}", to_string(pipeline_res.result)));
+	}
+	m_compute_pipeline = pipeline_res.value;
 
     return {};
 }
@@ -434,7 +446,9 @@ void Sierpinski2D::dispatch(
         .random_seed = params.random_seed
     };
 
-    void* data = m_device.mapMemory(m_param_memory, 0, sizeof(IFSShaderParams));
+    auto data_res = m_device.mapMemory(m_param_memory, 0, sizeof(IFSShaderParams));
+	// Unchecked should be dealt with by precons
+	auto data = data_res.value;
     std::memcpy(data, &shader_params, sizeof(IFSShaderParams));
     m_device.unmapMemory(m_param_memory);
 
@@ -483,11 +497,11 @@ void Sierpinski2D::compute(
     wait_compute_complete();
 
     // Reset fence before recording
-    m_device.resetFences(m_compute_fence);
+    auto _ = m_device.resetFences(m_compute_fence);
 
     // Reset and begin command buffer
-    m_compute_command_buffer.reset();
-    m_compute_command_buffer.begin({vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
+    auto _ = m_compute_command_buffer.reset();
+    auto _ = m_compute_command_buffer.begin({vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
 
     // Record dispatch using backend's own particle buffer
     dispatch(m_compute_command_buffer, m_particle_buffer->buffer(), m_particle_count, params);
@@ -503,13 +517,13 @@ void Sierpinski2D::compute(
         );
     }
 
-    m_compute_command_buffer.end();
+    auto _ = m_compute_command_buffer.end();
 
     // Submit to compute queue with fence
     auto submit_info = vk::SubmitInfo()
         .setCommandBuffers(m_compute_command_buffer);
 
-    m_compute_queue.submit(submit_info, m_compute_fence);
+    auto _ = m_compute_queue.submit(submit_info, m_compute_fence);
 
     // Return immediately - asynchronous execution
 }
@@ -549,7 +563,7 @@ void Sierpinski2D::reallocate_particle_buffer(uint32_t new_count) {
 
     // Wait for any pending compute operations
     wait_compute_complete();
-    m_device.waitIdle();
+    auto _ = m_device.waitIdle();
 
     // Update particle count
     m_particle_count = new_count;

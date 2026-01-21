@@ -51,8 +51,12 @@ vk::Bool32 debug_callback(
 
 bool check_validation_layer_support()
 {
-    auto available = vk::enumerateInstanceLayerProperties();
-
+    auto available_res = vk::enumerateInstanceLayerProperties();
+	if (available_res.result != vk::Result::eSuccess)
+	{
+		Logger::instance().warn("Could not query InstanceLayerProperties {}", to_string(available_res.result));
+	}
+	auto available = std::move(available_res.value);
     for (const char* layer_name : VALIDATION_LAYERS) {
         bool found = false;
         for (const auto& layer : available) {
@@ -125,7 +129,12 @@ vk::Instance create_instance(std::string_view title)
         }
     }
 
-    auto instance = vk::createInstance(create_info);
+    auto instance_res = vk::createInstance(create_info);
+	if (instance_res.result != vk::Result::eSuccess)
+	{
+		Logger::instance().error("Failed to create instance {}", to_string(instance_res.result));
+	}
+	auto instance = instance_res.value;
 	VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
     Logger::instance().debug("Created Vulkan instance");
     return instance;
@@ -139,9 +148,13 @@ vk::DebugUtilsMessengerEXT create_debug_messenger(vk::Instance instance)
 
     auto create_info = make_debug_messenger_create_info();
 
-    auto result = instance.createDebugUtilsMessengerEXT(create_info, nullptr);
+    auto debug_msngr_res = instance.createDebugUtilsMessengerEXT(create_info, nullptr);
+	if (debug_msngr_res.result != vk::Result::eSuccess)
+	{
+		Logger::instance().error("Failed to create debug messenger {}", to_string(debug_msngr_res.result));
+	}
     Logger::instance().debug("Created debug messenger");
-    return result;
+    return debug_msngr_res.value;
 }
 
 void destroy_debug_messenger(vk::Instance instance, vk::DebugUtilsMessengerEXT messenger)
@@ -154,7 +167,12 @@ void destroy_debug_messenger(vk::Instance instance, vk::DebugUtilsMessengerEXT m
 
 vk::PhysicalDevice select_physical_device(vk::Instance instance)
 {
-    auto devices = instance.enumeratePhysicalDevices();
+    auto devices_res = instance.enumeratePhysicalDevices();
+	if (devices_res.result != vk::Result::eSuccess)
+	{
+		Logger::instance().error("Failed to enumerate physical devices {}", to_string(devices_res.result));
+	}
+	auto devices = std::move(devices_res.value);
 
     for (const auto& dev : devices) {
         auto props = dev.getProperties();
@@ -245,9 +263,13 @@ vk::Device create_logical_device(vk::PhysicalDevice physical_device, const Queue
         .setPEnabledExtensionNames(extensions)
         .setPNext(&features2);
 
-    auto device = physical_device.createDevice(create_info);
+    auto device_res = physical_device.createDevice(create_info);
+	if (device_res.result != vk::Result::eSuccess)
+	{
+		Logger::instance().error("Failed to create device {}", to_string(device_res.result));
+	}
     Logger::instance().debug("Created logical device");
-    return device;
+    return device_res.value;
 }
 
 } // anonymous namespace

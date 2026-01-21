@@ -163,11 +163,12 @@ std::expected<void, std::string> SphereRenderer::create_sphere_buffers() {
         .setUsage(vk::BufferUsageFlagBits::eVertexBuffer)
         .setSharingMode(vk::SharingMode::eExclusive);
 
-    try {
-        m_vertex_buffer = m_device.createBuffer(vertex_buffer_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create vertex buffer: {}", e.what()));
-    }
+	auto vertex_buffer_res = m_device.createBuffer(vertex_buffer_info);
+	if (vertex_buffer_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create vertex buffer: {}", to_string(vertex_buffer_res.result)));
+	}
+	m_vertex_buffer = vertex_buffer_res.value;
 
     auto vertex_mem_reqs = m_device.getBufferMemoryRequirements(m_vertex_buffer);
     auto vertex_mem_props = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
@@ -191,17 +192,24 @@ std::expected<void, std::string> SphereRenderer::create_sphere_buffers() {
         .setAllocationSize(vertex_mem_reqs.size)
         .setMemoryTypeIndex(*vertex_mem_type);
 
-    try {
-        m_vertex_memory = m_device.allocateMemory(vertex_alloc_info);
-        m_device.bindBufferMemory(m_vertex_buffer, m_vertex_memory, 0);
+	auto vertex_mem_res = m_device.allocateMemory(vertex_alloc_info);
+	if (vertex_mem_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to allocate vertex memory: {}", to_string(vertex_mem_res.result)));
+	}
+	m_vertex_memory = vertex_mem_res.value;
+	auto vertex_bind_res = m_device.bindBufferMemory(m_vertex_buffer, m_vertex_memory, 0);
+	if (vertex_bind_res != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to bind vertex memory: {}", to_string(vertex_bind_res)));
+	}
 
-        // Upload vertex data
-        void* data = m_device.mapMemory(m_vertex_memory, 0, vertex_size);
-        std::memcpy(data, m_sphere_vertices.data(), vertex_size);
-        m_device.unmapMemory(m_vertex_memory);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to allocate vertex memory: {}", e.what()));
-    }
+	// Upload vertex data
+	auto data_vert_res = m_device.mapMemory(m_vertex_memory, 0, vertex_size);
+	CHECK_VK_RESULT(data_vert_res, "Failed to map vert memory {}");
+	auto data_vert = data_vert_res.value;
+	std::memcpy(data_vert, m_sphere_vertices.data(), vertex_size);
+	m_device.unmapMemory(m_vertex_memory);
 
     // Create index buffer
     vk::DeviceSize index_size = sizeof(uint32_t) * m_sphere_indices.size();
@@ -211,11 +219,12 @@ std::expected<void, std::string> SphereRenderer::create_sphere_buffers() {
         .setUsage(vk::BufferUsageFlagBits::eIndexBuffer)
         .setSharingMode(vk::SharingMode::eExclusive);
 
-    try {
-        m_index_buffer = m_device.createBuffer(index_buffer_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create index buffer: {}", e.what()));
-    }
+	auto index_buffer_res = m_device.createBuffer(index_buffer_info);
+	if (index_buffer_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create index buffer: {}", to_string(index_buffer_res.result)));
+	}
+	m_index_buffer = index_buffer_res.value;
 
     auto index_mem_reqs = m_device.getBufferMemoryRequirements(m_index_buffer);
     auto index_mem_type = find_memory_type(index_mem_reqs.memoryTypeBits, vertex_mem_props);
@@ -227,17 +236,24 @@ std::expected<void, std::string> SphereRenderer::create_sphere_buffers() {
         .setAllocationSize(index_mem_reqs.size)
         .setMemoryTypeIndex(*index_mem_type);
 
-    try {
-        m_index_memory = m_device.allocateMemory(index_alloc_info);
-        m_device.bindBufferMemory(m_index_buffer, m_index_memory, 0);
+	auto index_mem_res = m_device.allocateMemory(index_alloc_info);
+	if (index_mem_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to allocate index memory: {}", to_string(index_mem_res.result)));
+	}
+	m_index_memory = index_mem_res.value;
+	auto index_bind_res = m_device.bindBufferMemory(m_index_buffer, m_index_memory, 0);
+	if (index_bind_res != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to bind index memory: {}", to_string(index_bind_res)));
+	}
 
-        // Upload index data
-        void* data = m_device.mapMemory(m_index_memory, 0, index_size);
-        std::memcpy(data, m_sphere_indices.data(), index_size);
-        m_device.unmapMemory(m_index_memory);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to allocate index memory: {}", e.what()));
-    }
+	// Upload index data
+	auto data_index_res = m_device.mapMemory(m_index_memory, 0, index_size);
+	CHECK_VK_RESULT(data_index_res, "Failed to map index memory {}");
+	auto data_index = data_index_res.value;
+	std::memcpy(data_index, m_sphere_indices.data(), index_size);
+	m_device.unmapMemory(m_index_memory);
 
     return {};
 }
@@ -262,11 +278,12 @@ std::expected<void, std::string> SphereRenderer::create_descriptor_layout() {
     auto layout_info = vk::DescriptorSetLayoutCreateInfo()
         .setBindings(bindings);
 
-    try {
-        m_descriptor_layout = m_device.createDescriptorSetLayout(layout_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create descriptor layout: {}", e.what()));
-    }
+	auto layout_res = m_device.createDescriptorSetLayout(layout_info);
+	if (layout_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create descriptor layout: {}", to_string(layout_res.result)));
+	}
+	m_descriptor_layout = layout_res.value;
 
     return {};
 }
@@ -276,11 +293,12 @@ std::expected<void, std::string> SphereRenderer::create_pipeline() {
     auto pipeline_layout_info = vk::PipelineLayoutCreateInfo()
         .setSetLayouts(m_descriptor_layout);
 
-    try {
-        m_pipeline_layout = m_device.createPipelineLayout(pipeline_layout_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create pipeline layout: {}", e.what()));
-    }
+	auto pipeline_layout_res = m_device.createPipelineLayout(pipeline_layout_info);
+	if (pipeline_layout_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create pipeline layout: {}", to_string(pipeline_layout_res.result)));
+	}
+	m_pipeline_layout = pipeline_layout_res.value;
 
     // Shader stages
     auto vert_stage = vk::PipelineShaderStageCreateInfo()
@@ -386,15 +404,12 @@ std::expected<void, std::string> SphereRenderer::create_pipeline() {
         .setRenderPass(m_render_pass)
         .setSubpass(0);
 
-    try {
-        auto result = m_device.createGraphicsPipeline(nullptr, pipeline_info);
-        if (result.result != vk::Result::eSuccess) {
-            return std::unexpected(std::format("Failed to create graphics pipeline: {}", vk::to_string(result.result)));
-        }
-        m_graphics_pipeline = result.value;
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create graphics pipeline: {}", e.what()));
-    }
+	auto pipeline_res = m_device.createGraphicsPipeline(nullptr, pipeline_info);
+	if (pipeline_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create graphics pipeline: {}", to_string(pipeline_res.result)));
+	}
+	m_graphics_pipeline = pipeline_res.value;
 
     return {};
 }
@@ -410,23 +425,24 @@ std::expected<void, std::string> SphereRenderer::create_descriptor_set() {
         .setMaxSets(1)
         .setPoolSizes(pool_sizes);
 
-    try {
-        m_descriptor_pool = m_device.createDescriptorPool(pool_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create descriptor pool: {}", e.what()));
-    }
+	auto descriptor_pool_res = m_device.createDescriptorPool(pool_info);
+	if (descriptor_pool_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create descriptor pool: {}", to_string(descriptor_pool_res.result)));
+	}
+	m_descriptor_pool = descriptor_pool_res.value;
 
     // Allocate descriptor set
     auto alloc_info = vk::DescriptorSetAllocateInfo()
         .setDescriptorPool(m_descriptor_pool)
         .setSetLayouts(m_descriptor_layout);
 
-    try {
-        auto sets = m_device.allocateDescriptorSets(alloc_info);
-        m_descriptor_set = sets[0];
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to allocate descriptor set: {}", e.what()));
-    }
+	auto descriptor_set_res = m_device.allocateDescriptorSets(alloc_info);
+	if (descriptor_set_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to allocate descriptor set: {}", to_string(descriptor_set_res.result)));
+	}
+	m_descriptor_set = descriptor_set_res.value[0];
 
     // Update view buffer binding (particle buffer will be updated per frame)
     auto view_buffer_info = vk::DescriptorBufferInfo()
@@ -484,11 +500,12 @@ std::expected<std::unique_ptr<SphereRenderer>, std::string> SphereRenderer::crea
         .setUsage(vk::BufferUsageFlagBits::eUniformBuffer)
         .setSharingMode(vk::SharingMode::eExclusive);
 
-    try {
-        renderer->m_view_buffer = device.createBuffer(buffer_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create view buffer: {}", e.what()));
-    }
+	auto view_buffer_res = device.createBuffer(buffer_info);
+	if (view_buffer_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create view buffer: {}", to_string(view_buffer_res.result)));
+	}
+	renderer->m_view_buffer = view_buffer_res.value;
 
     // Allocate and map view buffer memory
     auto mem_reqs = device.getBufferMemoryRequirements(renderer->m_view_buffer);
@@ -512,13 +529,20 @@ std::expected<std::unique_ptr<SphereRenderer>, std::string> SphereRenderer::crea
         .setAllocationSize(mem_reqs.size)
         .setMemoryTypeIndex(*memory_type);
 
-    try {
-        renderer->m_view_memory = device.allocateMemory(alloc_info);
-        device.bindBufferMemory(renderer->m_view_buffer, renderer->m_view_memory, 0);
-        renderer->m_view_mapped = device.mapMemory(renderer->m_view_memory, 0, sizeof(ViewParams));
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to allocate view memory: {}", e.what()));
-    }
+	auto view_mem_res = device.allocateMemory(alloc_info);
+	if (view_mem_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to allocate view memory: {}", to_string(view_mem_res.result)));
+	}
+	renderer->m_view_memory = view_mem_res.value;
+	auto view_bind_res = device.bindBufferMemory(renderer->m_view_buffer, renderer->m_view_memory, 0);
+	if (view_bind_res != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to bind view memory: {}", to_string(view_bind_res)));
+	}
+	auto view_map_res = device.mapMemory(renderer->m_view_memory, 0, sizeof(ViewParams));
+	CHECK_VK_RESULT(view_map_res, "Failed to map memory for view {}");
+	renderer->m_view_mapped = view_map_res.value;
 
     // Create descriptor layout
     if (auto result = renderer->create_descriptor_layout(); !result) {
@@ -540,11 +564,12 @@ std::expected<std::unique_ptr<SphereRenderer>, std::string> SphereRenderer::crea
         .setQueueFamilyIndex(context.queue_indices().graphics)
         .setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 
-    try {
-        renderer->m_graphics_command_pool = device.createCommandPool(pool_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create command pool: {}", e.what()));
-    }
+	auto cmd_pool_res = device.createCommandPool(pool_info);
+	if (cmd_pool_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create command pool: {}", to_string(cmd_pool_res.result)));
+	}
+	renderer->m_graphics_command_pool = cmd_pool_res.value;
 
     // Create command buffers (one per swapchain image)
     // Note: We'll create initial command buffers, but handle_swapchain_recreation will resize if needed
@@ -553,20 +578,27 @@ std::expected<std::unique_ptr<SphereRenderer>, std::string> SphereRenderer::crea
         .setLevel(vk::CommandBufferLevel::ePrimary)
         .setCommandBufferCount(1);  // Placeholder, will be resized
 
-    try {
-        renderer->m_command_buffers = device.allocateCommandBuffers(alloc_info_cmd);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to allocate command buffers: {}", e.what()));
-    }
+	auto cmd_buffers_res = device.allocateCommandBuffers(alloc_info_cmd);
+	if (cmd_buffers_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to allocate command buffers: {}", to_string(cmd_buffers_res.result)));
+	}
+	renderer->m_command_buffers = cmd_buffers_res.value;
 
     // Create synchronization objects
     for (size_t i = 0; i < SphereRenderer::MAX_FRAMES_IN_FLIGHT; i++) {
-        try {
-            renderer->m_in_flight_fences.push_back(device.createFence({vk::FenceCreateFlagBits::eSignaled}));
-            renderer->m_render_finished_semaphores.push_back(device.createSemaphore({}));
-        } catch (const vk::SystemError& e) {
-            return std::unexpected(std::format("Failed to create sync objects: {}", e.what()));
-        }
+		auto fence_res = device.createFence({vk::FenceCreateFlagBits::eSignaled});
+		if (fence_res.result != vk::Result::eSuccess)
+		{
+			return std::unexpected(std::format("Failed to create fence: {}", to_string(fence_res.result)));
+		}
+		renderer->m_in_flight_fences.push_back(fence_res.value);
+		auto semaphore_res = device.createSemaphore({});
+		if (semaphore_res.result != vk::Result::eSuccess)
+		{
+			return std::unexpected(std::format("Failed to create semaphore: {}", to_string(semaphore_res.result)));
+		}
+		renderer->m_render_finished_semaphores.push_back(semaphore_res.value);
     }
 
     renderer->m_images_in_flight.resize(1, nullptr);  // Placeholder
@@ -659,9 +691,9 @@ vk::Semaphore SphereRenderer::render_frame(
 
     // Record command buffer
     auto& cmd = m_command_buffers[info.image_index];
-    cmd.reset();
+    auto _ = cmd.reset();
     auto begin_info = vk::CommandBufferBeginInfo();
-    cmd.begin(begin_info);
+    auto _ = cmd.begin(begin_info);
 
     // Acquire buffer ownership if needed
     if (info.needs_ownership_acquire) {
@@ -706,7 +738,7 @@ vk::Semaphore SphereRenderer::render_frame(
     }
 
     cmd.endRenderPass();
-    cmd.end();
+    auto _ = cmd.end();
 
     // Submit
     vk::PipelineStageFlags wait_stage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
@@ -716,7 +748,7 @@ vk::Semaphore SphereRenderer::render_frame(
         .setCommandBuffers(cmd)
         .setSignalSemaphores(m_render_finished_semaphores[info.image_index]);
 
-    graphics_queue.submit(submit_info, m_in_flight_fences[info.current_frame]);
+    auto _ = graphics_queue.submit(submit_info, m_in_flight_fences[info.current_frame]);
 
     return m_render_finished_semaphores[info.image_index];
 }
@@ -734,8 +766,8 @@ void SphereRenderer::handle_swapchain_recreation(uint32_t new_image_count) {
             .setCommandPool(m_graphics_command_pool)
             .setLevel(vk::CommandBufferLevel::ePrimary)
             .setCommandBufferCount(new_image_count);
-
-        m_command_buffers = m_device.allocateCommandBuffers(alloc_info);
+		auto command_buffer_res = m_device.allocateCommandBuffers(alloc_info);
+        m_command_buffers = command_buffer_res.value;
     }
 
     // Resize per-image semaphores
@@ -746,7 +778,9 @@ void SphereRenderer::handle_swapchain_recreation(uint32_t new_image_count) {
         m_render_finished_semaphores.clear();
 
         for (uint32_t i = 0; i < new_image_count; i++) {
-            m_render_finished_semaphores.push_back(m_device.createSemaphore({}));
+        	auto semaphore_res = m_device.createSemaphore({});
+        	// Should probably check this but I dont want to change the function signature right now
+            m_render_finished_semaphores.push_back(std::move(semaphore_res.value));
         }
     }
 

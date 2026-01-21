@@ -170,11 +170,12 @@ std::expected<void, std::string> ParticleRenderer::initialize() {
         .setUsage(vk::BufferUsageFlagBits::eUniformBuffer)
         .setSharingMode(vk::SharingMode::eExclusive);
 
-    try {
-        m_view_buffer = m_device.createBuffer(buffer_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create view buffer: {}", e.what()));
-    }
+	auto buffer_res = m_device.createBuffer(buffer_info);
+	if (buffer_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create view buffer: {}", to_string(buffer_res.result)));
+	}
+	m_view_buffer = buffer_res.value;
 
     // Allocate host-visible memory
     auto mem_reqs = m_device.getBufferMemoryRequirements(m_view_buffer);
@@ -201,14 +202,21 @@ std::expected<void, std::string> ParticleRenderer::initialize() {
         .setAllocationSize(mem_reqs.size)
         .setMemoryTypeIndex(memory_type);
 
-    try {
-        m_view_memory = m_device.allocateMemory(alloc_info);
-        m_device.bindBufferMemory(m_view_buffer, m_view_memory, 0);
-    } catch (const vk::SystemError& e) {
-        m_device.destroyBuffer(m_view_buffer);
-        m_view_buffer = nullptr;
-        return std::unexpected(std::format("Failed to allocate view memory: {}", e.what()));
-    }
+	auto alloc_res = m_device.allocateMemory(alloc_info);
+	if (alloc_res.result != vk::Result::eSuccess)
+	{
+		m_device.destroyBuffer(m_view_buffer);
+		m_view_buffer = nullptr;
+		return std::unexpected(std::format("Failed to allocate view memory: {}", to_string(alloc_res.result)));
+	}
+	m_view_memory = alloc_res.value;
+	auto bind_res = m_device.bindBufferMemory(m_view_buffer, m_view_memory, 0);
+	if (bind_res != vk::Result::eSuccess)
+	{
+		m_device.destroyBuffer(m_view_buffer);
+		m_view_buffer = nullptr;
+		return std::unexpected(std::format("Failed to bind view memory: {}", to_string(bind_res)));
+	}
 
     // Create descriptor pool
     std::vector<vk::DescriptorPoolSize> pool_sizes = {
@@ -220,22 +228,24 @@ std::expected<void, std::string> ParticleRenderer::initialize() {
         .setMaxSets(1)
         .setPoolSizes(pool_sizes);
 
-    try {
-        m_descriptor_pool = m_device.createDescriptorPool(pool_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create descriptor pool: {}", e.what()));
-    }
+	auto descriptor_pool_res = m_device.createDescriptorPool(pool_info);
+	if (descriptor_pool_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create descriptor pool: {}", to_string(descriptor_pool_res.result)));
+	}
+	m_descriptor_pool = descriptor_pool_res.value;
 
     // Allocate descriptor set
     auto alloc_info_desc = vk::DescriptorSetAllocateInfo()
         .setDescriptorPool(m_descriptor_pool)
         .setSetLayouts(m_descriptor_layout);
 
-    try {
-        m_descriptor_set = m_device.allocateDescriptorSets(alloc_info_desc)[0];
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to allocate descriptor set: {}", e.what()));
-    }
+	auto descriptor_set_res = m_device.allocateDescriptorSets(alloc_info_desc);
+	if (descriptor_set_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to allocate descriptor set: {}", to_string(descriptor_set_res.result)));
+	}
+	m_descriptor_set = descriptor_set_res.value[0];
 
     // Update descriptor set with view buffer (particle buffer will be updated in render())
     auto view_buffer_info = vk::DescriptorBufferInfo()
@@ -261,11 +271,12 @@ std::expected<void, std::string> ParticleRenderer::initialize() {
         .setQueueFamilyIndex(m_context->queue_indices().graphics)
         .setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 
-    try {
-        m_graphics_command_pool = m_device.createCommandPool(cmd_pool_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create graphics command pool: {}", e.what()));
-    }
+	auto cmd_pool_res = m_device.createCommandPool(cmd_pool_info);
+	if (cmd_pool_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create graphics command pool: {}", to_string(cmd_pool_res.result)));
+	}
+	m_graphics_command_pool = cmd_pool_res.value;
 
     // Create fences for frames-in-flight
     m_in_flight_fences.reserve(MAX_FRAMES_IN_FLIGHT);
@@ -273,11 +284,12 @@ std::expected<void, std::string> ParticleRenderer::initialize() {
         auto fence_info = vk::FenceCreateInfo()
             .setFlags(vk::FenceCreateFlagBits::eSignaled);  // Start signaled
 
-        try {
-            m_in_flight_fences.push_back(m_device.createFence(fence_info));
-        } catch (const vk::SystemError& e) {
-            return std::unexpected(std::format("Failed to create in-flight fence: {}", e.what()));
-        }
+		auto fence_res = m_device.createFence(fence_info);
+		if (fence_res.result != vk::Result::eSuccess)
+		{
+			return std::unexpected(std::format("Failed to create in-flight fence: {}", to_string(fence_res.result)));
+		}
+		m_in_flight_fences.push_back(fence_res.value);
     }
 
     // Note: Command buffers and semaphores will be created when swapchain is known
@@ -307,11 +319,12 @@ std::expected<void, std::string> ParticleRenderer::create_descriptor_layout() {
     auto layout_info = vk::DescriptorSetLayoutCreateInfo()
         .setBindings(bindings);
 
-    try {
-        m_descriptor_layout = m_device.createDescriptorSetLayout(layout_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create descriptor layout: {}", e.what()));
-    }
+	auto layout_res = m_device.createDescriptorSetLayout(layout_info);
+	if (layout_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create descriptor layout: {}", to_string(layout_res.result)));
+	}
+	m_descriptor_layout = layout_res.value;
 
     return {};
 }
@@ -325,11 +338,12 @@ std::expected<void, std::string> ParticleRenderer::create_pipeline() {
     auto pipeline_layout_info = vk::PipelineLayoutCreateInfo()
         .setSetLayouts(m_descriptor_layout);
 
-    try {
-        m_pipeline_layout = m_device.createPipelineLayout(pipeline_layout_info);
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create pipeline layout: {}", e.what()));
-    }
+	auto pipeline_layout_res = m_device.createPipelineLayout(pipeline_layout_info);
+	if (pipeline_layout_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create pipeline layout: {}", to_string(pipeline_layout_res.result)));
+	}
+	m_pipeline_layout = pipeline_layout_res.value;
 
     // Shader stages
     std::vector<vk::PipelineShaderStageCreateInfo> shader_stages = {
@@ -421,16 +435,12 @@ std::expected<void, std::string> ParticleRenderer::create_pipeline() {
         .setRenderPass(m_render_pass)
         .setSubpass(0);
 
-    try {
-        auto result = m_device.createGraphicsPipeline(nullptr, pipeline_info);
-        if (result.result != vk::Result::eSuccess) {
-            return std::unexpected(std::format("Failed to create graphics pipeline: {}",
-                vk::to_string(result.result)));
-        }
-        m_graphics_pipeline = result.value;
-    } catch (const vk::SystemError& e) {
-        return std::unexpected(std::format("Failed to create graphics pipeline: {}", e.what()));
-    }
+	auto pipeline_res = m_device.createGraphicsPipeline(nullptr, pipeline_info);
+	if (pipeline_res.result != vk::Result::eSuccess)
+	{
+		return std::unexpected(std::format("Failed to create graphics pipeline: {}", to_string(pipeline_res.result)));
+	}
+	m_graphics_pipeline = pipeline_res.value;
 
     return {};
 }
@@ -522,7 +532,8 @@ void ParticleRenderer::render(
         .padding = 0.0f
     };
 
-    void* data = m_device.mapMemory(m_view_memory, 0, sizeof(ViewShaderParams));
+    auto data_res = m_device.mapMemory(m_view_memory, 0, sizeof(ViewShaderParams));
+	auto data = data_res.value;
     std::memcpy(data, &view_params, sizeof(ViewShaderParams));
     m_device.unmapMemory(m_view_memory);
 
@@ -562,7 +573,7 @@ void ParticleRenderer::resize(const vk::Extent2D& new_extent) {
 
 void ParticleRenderer::handle_swapchain_recreation(uint32_t new_image_count) {
     // Wait for device to finish before recreating resources
-    m_device.waitIdle();
+    auto _ = m_device.waitIdle();
 
     // Destroy old semaphores and command buffers
     for (auto& sem : m_render_finished_semaphores) {
@@ -579,12 +590,13 @@ void ParticleRenderer::handle_swapchain_recreation(uint32_t new_image_count) {
     // Create new semaphores for each swapchain image
     m_render_finished_semaphores.reserve(new_image_count);
     for (uint32_t i = 0; i < new_image_count; i++) {
-        try {
-            m_render_finished_semaphores.push_back(m_device.createSemaphore({}));
-        } catch (const vk::SystemError& e) {
-            Logger::instance().error("Failed to create render finished semaphore: {}", e.what());
-            return;
-        }
+		auto semaphore_res = m_device.createSemaphore({});
+		if (semaphore_res.result != vk::Result::eSuccess)
+		{
+			Logger::instance().error("Failed to create render finished semaphore: {}", to_string(semaphore_res.result));
+			return;
+		}
+		m_render_finished_semaphores.push_back(semaphore_res.value);
     }
 
     // Allocate command buffers (one per swapchain image)
@@ -593,12 +605,13 @@ void ParticleRenderer::handle_swapchain_recreation(uint32_t new_image_count) {
         .setLevel(vk::CommandBufferLevel::ePrimary)
         .setCommandBufferCount(new_image_count);
 
-    try {
-        m_command_buffers = m_device.allocateCommandBuffers(cmd_alloc_info);
-    } catch (const vk::SystemError& e) {
-        Logger::instance().error("Failed to allocate command buffers: {}", e.what());
-        return;
-    }
+	auto cmd_buffers_res = m_device.allocateCommandBuffers(cmd_alloc_info);
+	if (cmd_buffers_res.result != vk::Result::eSuccess)
+	{
+		Logger::instance().error("Failed to allocate command buffers: {}", to_string(cmd_buffers_res.result));
+		return;
+	}
+	m_command_buffers = cmd_buffers_res.value;
 
     // Reset image-in-flight tracking
     m_images_in_flight.clear();
@@ -629,9 +642,9 @@ vk::Semaphore ParticleRenderer::render_frame(
 
     // Record command buffer
     auto& cmd = m_command_buffers[info.image_index];
-    cmd.reset();
+    auto _ = cmd.reset();
     auto begin_info = vk::CommandBufferBeginInfo();
-    cmd.begin(begin_info);
+    auto _ = cmd.begin(begin_info);
 
     // Acquire buffer ownership if needed
     if (info.needs_ownership_acquire) {
@@ -660,7 +673,7 @@ vk::Semaphore ParticleRenderer::render_frame(
     }
 
     cmd.endRenderPass();
-    cmd.end();
+    auto _ = cmd.end();
 
     // Submit
     vk::PipelineStageFlags wait_stage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
@@ -670,7 +683,7 @@ vk::Semaphore ParticleRenderer::render_frame(
         .setCommandBuffers(cmd)
         .setSignalSemaphores(m_render_finished_semaphores[info.image_index]);
 
-    graphics_queue.submit(submit_info, m_in_flight_fences[info.current_frame]);
+    auto _ = graphics_queue.submit(submit_info, m_in_flight_fences[info.current_frame]);
 
     // Return the semaphore to wait on for presentation
     return m_render_finished_semaphores[info.image_index];
