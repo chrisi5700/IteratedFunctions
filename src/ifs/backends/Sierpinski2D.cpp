@@ -508,6 +508,8 @@ void Sierpinski2D::wait_compute_complete() {
 }
 
 std::vector<UICallback> Sierpinski2D::get_ui_callbacks() {
+	static constexpr std::size_t MAX_PARTICLES =  (3.5 * 1024 * 1024 * 1024) / sizeof(Particle);
+	// This is fairly close to the vk max allocation size anyways and 117'440'000 particles is probably enough
     std::vector<UICallback> callbacks;
 
     // Particle count slider (logarithmic, 10K to 100M in steps of 10K)
@@ -517,7 +519,7 @@ std::vector<UICallback> Sierpinski2D::get_ui_callbacks() {
             uint32_t new_count = static_cast<uint32_t>(v);
             new_count = (new_count / 10000) * 10000;
             if (new_count < 10000) new_count = 10000;
-            if (new_count > 100000000) new_count = 100000000;
+            if (new_count > MAX_PARTICLES) new_count = MAX_PARTICLES;
 
             if (new_count != m_particle_count) {
                 reallocate_particle_buffer(new_count);
@@ -525,7 +527,7 @@ std::vector<UICallback> Sierpinski2D::get_ui_callbacks() {
         },
         .getter = [this]() { return static_cast<int>(m_particle_count); },
         .min = 10000,
-        .max = 100000000
+        .max = MAX_PARTICLES
     });
 
     return callbacks;

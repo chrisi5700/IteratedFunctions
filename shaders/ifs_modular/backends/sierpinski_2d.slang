@@ -2,21 +2,12 @@
 // Generates classic Sierpinski triangle fractal using 3 affine transforms
 
 // Unified particle structure (matches include/ifs/ParticleData.hpp)
-struct Particle {
-    float3 position;  // World position (z will be 0 for 2D)
-    float _padding1;  // Alignment
-    float4 color;     // RGBA color
-};
+import ifs_modular.common;
+
+
 
 [[vk::binding(0, 0)]]
 RWStructuredBuffer<Particle> particles;
-
-struct IFSParams {
-    uint iterationCount;      // Number of iterations per dispatch
-    uint particleCount;       // Total particles
-    float scale;              // Global scale factor
-    uint randomSeed;          // Seed for randomization
-};
 
 [[vk::binding(1, 0)]]
 ConstantBuffer<IFSParams> params;

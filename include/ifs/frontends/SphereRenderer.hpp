@@ -50,7 +50,7 @@ public:
     /**
      * @brief Update the particle buffer binding (call once, not every frame)
      */
-    void update_particle_buffer(vk::Buffer particle_buffer);
+    void update_particle_buffer(vk::Buffer particle_buffer) override;
 
     /**
      * @brief Set the sphere radius for rendering

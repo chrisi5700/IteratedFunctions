@@ -1,5 +1,7 @@
 // Sphere Vertex Shader - Instanced rendering
 // Each instance is one particle, rendered as a sphere
+import ifs_modular.common;
+
 
 struct ViewParams {
     column_major float4x4 view_projection; // GLM is in col major while slang is in col major!!
@@ -9,12 +11,6 @@ struct ViewParams {
     float padding;
 };
 
-// Must match the particle structure from the compute shader!
-struct Particle {
-    float3 position;  // World position (z will be 0 for 2D)
-    float _padding1;  // Alignment
-    float4 color;     // RGBA color
-};
 
 // Uniforms
 [[vk::binding(0, 0)]]

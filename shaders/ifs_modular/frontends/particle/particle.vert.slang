@@ -2,22 +2,20 @@
 // Renders particles as GL_POINTS with 3D camera support
 
 // Unified particle structure (matches include/ifs/ParticleData.hpp)
-struct Particle {
-    float3 position;  // World position
-    float _padding1;
-    float4 color;     // RGBA color
+import ifs_modular.common;
+
+// Camera/view parameters
+public struct ViewParams {
+    public column_major float4x4 viewProjection;  // Combined view-projection matrix
+    public float2 screenSize;        // For aspect ratio / point size scaling
+    public float pointSize;          // Base point size
+    public float _padding;
 };
 
 [[vk::binding(0, 0)]]
 StructuredBuffer<Particle> particles;
 
-// Camera/view parameters
-struct ViewParams {
-    column_major float4x4 viewProjection;  // Combined view-projection matrix
-    float2 screenSize;        // For aspect ratio / point size scaling
-    float pointSize;          // Base point size
-    float _padding;
-};
+
 
 [[vk::binding(1, 0)]]
 ConstantBuffer<ViewParams> viewParams;

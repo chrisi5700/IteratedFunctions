@@ -3,8 +3,10 @@
 A high-performance **Vulkan-based fractal visualizer** for exploring Iterated Function Systems (IFS) with real-time GPU compute and interactive rendering.
 
 ![Sierpinski Triangle - 50M particles](images/sierpinski.png)
-*Sierpinski Triangle rendered with 50,000,000 particles*
+*Sierpinski Triangle rendered with 50M particles*
 
+![Barnsley Fern - 100M particles](images/barnsley.png)
+*Barnsley Fern rendered with 100M particles*
 ---
 
 ## Features
@@ -160,6 +162,6 @@ IteratedFunctions/
 ## What I learned
 
 I think it should probably create a template for Vulkan projects in general. Clean up does not play nice with the 
-``std::expected`` controlflow when objects don't use RAII. I could alternatively have used ``vk::raii`` but the size overhead
+``std::expected`` control-flow when objects don't use RAII. I could alternatively have used ``vk::raii`` but the size overhead
 in each object does not feel right. I think higher level abstractions should work without wasting too much space since 
-lifetimes are often shared. 
+lifetimes are often shared. Other than that slang is pretty neat. I even got to contribute to their project.

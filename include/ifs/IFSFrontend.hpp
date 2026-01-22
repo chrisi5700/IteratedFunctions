@@ -172,6 +172,16 @@ public:
     virtual void resize(const vk::Extent2D& new_extent) = 0;
 
     /**
+     * @brief Update the particle buffer binding in descriptor sets
+     *
+     * Called when the backend creates or recreates the particle buffer.
+     * Frontends should update their descriptor sets to point to the new buffer.
+     *
+     * @param particle_buffer The particle buffer to bind
+     */
+    virtual void update_particle_buffer(vk::Buffer particle_buffer) = 0;
+
+    /**
      * @brief Get render parameter ranges for UI (DEPRECATED - use get_ui_callbacks() instead)
      *
      * Frontends can override this to provide adjustable rendering parameters.

@@ -3,11 +3,14 @@
 // View (Frontend): ParticleRenderer point cloud visualizer
 // Controller: IFSController manages interaction and coordination
 
-#include <ifs/IFSController.hpp>
 #include <ifs/backends/Sierpinski2D.hpp>
 #include <ifs/frontends/ParticleRenderer.hpp>
+#include <ifs/IFSController.hpp>
 #include <ifs/Logger.hpp>
 #include <spdlog/spdlog.h>
+
+#include "ifs/backends/CustomIFS.hpp"
+#include "ifs/frontends/SphereRenderer.hpp"
 
 int main() {
     Logger::instance().set_level(spdlog::level::trace);
@@ -29,15 +32,14 @@ int main() {
         }
         auto& controller = *controller_result;
 
-        // Create backend (Model) - Sierpinski Triangle fractal
-        auto backend = ifs::Sierpinski2D::create(controller->context(), controller->device());
+        auto backend = ifs::CustomIFS::create(controller->context(), controller->device());
         if (!backend) {
             Logger::instance().error("Failed to create backend: {}", backend.error());
             return 1;
         }
 
         // Create frontend (View) - Point particle renderer
-        auto frontend = ifs::ParticleRenderer::create(
+        auto frontend = ifs::SphereRenderer::create(
             controller->context(),
             controller->device(),
             controller->render_pass(),

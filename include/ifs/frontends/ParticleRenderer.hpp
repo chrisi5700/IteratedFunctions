@@ -100,7 +100,7 @@ public:
      * Call this after creating the particle buffer or when it changes (e.g., resize).
      * Do not call every frame - descriptor sets should not be updated while in use.
      */
-    void update_particle_buffer(vk::Buffer particle_buffer);
+    void update_particle_buffer(vk::Buffer particle_buffer) override;
 
 private:
     // Private constructor - use create() factory

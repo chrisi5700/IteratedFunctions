@@ -1,6 +1,5 @@
 #include <ifs/IFSController.hpp>
 #include <ifs/Logger.hpp>
-#include <ifs/frontends/ParticleRenderer.hpp>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
@@ -380,11 +379,9 @@ std::expected<void, std::string> IFSController::run() {
     m_needs_ownership_acquire = different_queue_families;
 
     // IMPORTANT: Bind particle buffer to frontend descriptor set
-    // ParticleRenderer needs this to access particle data in shaders
+    // Frontend needs this to access particle data in shaders
     // Query backend for particle buffer
-    if (auto* particle_renderer = dynamic_cast<ParticleRenderer*>(m_frontend.get())) {
-        particle_renderer->update_particle_buffer(m_backend->get_particle_buffer());
-    }
+    m_frontend->update_particle_buffer(m_backend->get_particle_buffer());
 
     // Create image available semaphores (one per swapchain image)
     std::vector<vk::Semaphore> image_available_sems;
@@ -428,9 +425,7 @@ std::expected<void, std::string> IFSController::run() {
             auto _ = m_context->device().waitIdle();
 
             // Update frontend's descriptor set with (potentially new) particle buffer
-            if (auto* particle_renderer = dynamic_cast<ParticleRenderer*>(m_frontend.get())) {
-                particle_renderer->update_particle_buffer(m_backend->get_particle_buffer());
-            }
+            m_frontend->update_particle_buffer(m_backend->get_particle_buffer());
             m_needs_buffer_rebind = false;
         }
 
@@ -451,9 +446,7 @@ std::expected<void, std::string> IFSController::run() {
             m_frontend->handle_swapchain_recreation(m_window->image_count());
 
             // Rebind particle buffer after swapchain recreation (query from backend)
-            if (auto* particle_renderer = dynamic_cast<ParticleRenderer*>(m_frontend.get())) {
-                particle_renderer->update_particle_buffer(m_backend->get_particle_buffer());
-            }
+            m_frontend->update_particle_buffer(m_backend->get_particle_buffer());
             continue;
         }
 
