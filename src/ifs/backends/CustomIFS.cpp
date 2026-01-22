@@ -413,7 +413,7 @@ void CustomIFS::dispatch(
 ) {
     // Update parameter buffer
     IFSShaderParams shader_params{
-        .iteration_count = params.iteration_count,
+        .iteration_count = m_iteration_count, // Local overwrite
         .particle_count = particle_count,
         .scale = params.scale,
         .random_seed = params.random_seed
@@ -509,6 +509,8 @@ void CustomIFS::wait_compute_complete() {
 
 std::vector<UICallback> CustomIFS::get_ui_callbacks() {
 	static constexpr std::size_t MAX_PARTICLES =  (3.5 * 1024 * 1024 * 1024) / sizeof(Particle);
+	static constexpr std::size_t MAX_ITER =  500;
+
 	// This is fairly close to the vk max allocation size anyways and 117'440'000 particles is probably enough
     std::vector<UICallback> callbacks;
 
@@ -517,7 +519,6 @@ std::vector<UICallback> CustomIFS::get_ui_callbacks() {
         .setter = [this](int v) {
             // Round to nearest multiple of 10,000
             uint32_t new_count = static_cast<uint32_t>(v);
-            new_count = (new_count / 10000) * 10000;
             if (new_count < 10000) new_count = 10000;
             if (new_count > MAX_PARTICLES) new_count = MAX_PARTICLES;
 
@@ -529,6 +530,18 @@ std::vector<UICallback> CustomIFS::get_ui_callbacks() {
         .min = 10000,
         .max = MAX_PARTICLES
     });
+	callbacks.emplace_back("Iteration Count", DiscreteCallback{
+		.setter = [this](int v)
+		{
+			auto new_iter_count = static_cast<uint32_t>(v);
+			if (new_iter_count > MAX_ITER) new_iter_count = MAX_PARTICLES;
+			m_iteration_count = new_iter_count;
+		},
+		.getter = [this]() { return static_cast<int>(m_iteration_count); },
+		.min = 1,
+		.max = MAX_ITER
+	});
+
 
     return callbacks;
 }

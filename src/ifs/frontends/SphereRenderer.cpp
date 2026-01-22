@@ -726,8 +726,8 @@ vk::Semaphore SphereRenderer::render_frame(
 
     cmd.beginRenderPass(render_pass_begin, vk::SubpassContents::eInline);
 
-    // Render spheres
-    render(cmd, info.particle_buffer, info.particle_count, info.camera);
+    // Render spheres (pass the extent to ensure correct viewport/scissor)
+    render(cmd, info.particle_buffer, info.particle_count, info.camera, &info.extent);
 
     // Render ImGui if provided
     if (info.imgui_draw_data) {

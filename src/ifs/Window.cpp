@@ -485,10 +485,11 @@ bool Window::present(
         .setSwapchains(m_swapchain)
         .setImageIndices(image_index);
 
-	VkResult result = vkQueuePresentKHR( // This hurts my soul but some genius at vk hpp decided that recreating a swapchain is a fatal error
+	auto result = vkQueuePresentKHR( // This hurts my soul but some genius at vk hpp decided that recreating a swapchain is a fatal error
 	present_queue,
 	reinterpret_cast<const VkPresentInfoKHR*>(&present_info)
 	);
+	// auto present_result = present_queue.presentKHR(present_info);
 
 	vk::Result present_result = static_cast<vk::Result>(result);
 

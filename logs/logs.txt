@@ -20,7 +20,7 @@
 [IteratedFunction][Shader.cpp:45]               [debug] Created SPIR-V session with search path: /home/chris/code/cpp/IteratedFunctions/shaders
 [IteratedFunction][Shader.cpp:116]              [trace] Successfully loaded shader program 'ifs_modular/backends/custom_ifs':'main'
 [IteratedFunction][Shader.cpp:134]              [trace] Successfully linked shader program
-[IteratedFunction][Shader.cpp:151]              [trace] Generated SPIR-V code: 4572 bytes
+[IteratedFunction][Shader.cpp:151]              [trace] Generated SPIR-V code: 3720 bytes
 [IteratedFunction][Shader.cpp:438]              [debug] Shader stage: 6 -> Compute
 [IteratedFunction][Shader.cpp:875]              [debug] ComputeDetails: local_size(1, 1, 1)
 [IteratedFunction][Shader.cpp:419]              [trace] No push constants found
@@ -28,50 +28,15 @@
 [IteratedFunction][Shader.cpp:367]              [trace]   Binding: set=0 binding=0 name='particles' type=RawBuffer count=1 size=32
 [IteratedFunction][Shader.cpp:367]              [trace]   Binding: set=0 binding=1 name='params' type=ConstantBuffer count=1 size=16
 [IteratedFunction][Shader.cpp:390]              [debug] Extracted 2 descriptor bindings
-[IteratedFunction][Shader.cpp:168]              [debug] Created shader module (4572 bytes)
+[IteratedFunction][Shader.cpp:168]              [debug] Created shader module (3720 bytes)
 [IteratedFunction][Shader.cpp:968]              [ info] Shader 'ifs_modular/backends/custom_ifs' created successfully (2 descriptors)
 [IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 100000 particles (3.0517578125 MB)
 [IteratedFunction][CustomIFS.cpp:48]            [ info] Created CustomIFS backend
-[IteratedFunction][SphereRenderer.cpp:151]      [ info] Generated sphere mesh: 162 vertices, 960 indices
-[IteratedFunction][Shader.cpp:946]              [ info] Creating shader 'ifs_modular/frontends/sphere/sphere.vert.slang':'main'
-[IteratedFunction][Shader.cpp:82]               [debug] Loading shader module 'ifs_modular/frontends/sphere/sphere.vert.slang' with entry point 'main'
-[IteratedFunction][Shader.cpp:116]              [trace] Successfully loaded shader program 'ifs_modular/frontends/sphere/sphere.vert.slang':'main'
+[IteratedFunction][Shader.cpp:946]              [ info] Creating shader 'ifs_modular/frontends/particle/particle.vert.slang':'main'
+[IteratedFunction][Shader.cpp:82]               [debug] Loading shader module 'ifs_modular/frontends/particle/particle.vert.slang' with entry point 'main'
+[IteratedFunction][Shader.cpp:116]              [trace] Successfully loaded shader program 'ifs_modular/frontends/particle/particle.vert.slang':'main'
 [IteratedFunction][Shader.cpp:134]              [trace] Successfully linked shader program
-[IteratedFunction][Shader.cpp:151]              [trace] Generated SPIR-V code: 2460 bytes
+[IteratedFunction][Shader.cpp:151]              [trace] Generated SPIR-V code: 1852 bytes
 [IteratedFunction][Shader.cpp:438]              [debug] Shader stage: 1 -> Vertex
-[IteratedFunction][Shader.cpp:713]              [debug] VertexDetails: 2 inputs across 1 bindings, 4 outputs
-[IteratedFunction][Shader.cpp:718]              [trace]   Binding 0: stride=24
-[IteratedFunction][Shader.cpp:419]              [trace] No push constants found
-[IteratedFunction][Shader.cpp:382]              [debug] Extracting descriptors (2 parameters)
-[IteratedFunction][Shader.cpp:367]              [trace]   Binding: set=0 binding=0 name='view_params' type=ConstantBuffer count=1 size=96
-[IteratedFunction][Shader.cpp:367]              [trace]   Binding: set=0 binding=1 name='particles' type=RawBuffer count=1 size=32
-[IteratedFunction][Shader.cpp:390]              [debug] Extracted 2 descriptor bindings
-[IteratedFunction][Shader.cpp:168]              [debug] Created shader module (2460 bytes)
-[IteratedFunction][Shader.cpp:968]              [ info] Shader 'ifs_modular/frontends/sphere/sphere.vert.slang' created successfully (2 descriptors)
-[IteratedFunction][Shader.cpp:946]              [ info] Creating shader 'ifs_modular/frontends/sphere/sphere.frag.slang':'main'
-[IteratedFunction][Shader.cpp:82]               [debug] Loading shader module 'ifs_modular/frontends/sphere/sphere.frag.slang' with entry point 'main'
-[IteratedFunction][Shader.cpp:116]              [trace] Successfully loaded shader program 'ifs_modular/frontends/sphere/sphere.frag.slang':'main'
-[IteratedFunction][Shader.cpp:134]              [trace] Successfully linked shader program
-[IteratedFunction][Shader.cpp:151]              [trace] Generated SPIR-V code: 1684 bytes
-[IteratedFunction][Shader.cpp:438]              [debug] Shader stage: 5 -> Fragment
-[IteratedFunction][Shader.cpp:852]              [debug] FragmentDetails: 4 inputs, 0 outputs
-[IteratedFunction][Shader.cpp:419]              [trace] No push constants found
-[IteratedFunction][Shader.cpp:382]              [debug] Extracting descriptors (1 parameters)
-[IteratedFunction][Shader.cpp:367]              [trace]   Binding: set=0 binding=0 name='view_params' type=ConstantBuffer count=1 size=96
-[IteratedFunction][Shader.cpp:390]              [debug] Extracted 1 descriptor bindings
-[IteratedFunction][Shader.cpp:168]              [debug] Created shader module (1684 bytes)
-[IteratedFunction][Shader.cpp:968]              [ info] Shader 'ifs_modular/frontends/sphere/sphere.frag.slang' created successfully (1 descriptors)
-[IteratedFunction][SphereRenderer.cpp:606]      [ info] SphereRenderer created successfully
-[IteratedFunction][IFSController.cpp:370]       [ info] Starting main loop...
-[IteratedFunction][Window.cpp:540]              [ info] Swapchain recreated: 1920x1080
-[IteratedFunction][CustomIFS.cpp:537]           [ info] Reallocating particle buffer: 100000 -> 68920000 particles
-[IteratedFunction][ParticleBuffer.cpp:32]       [ info] Created particle buffer: 68920000 particles (2103.271484375 MB)
-[IteratedFunction][CustomIFS.cpp:577]           [ info] Particle buffer reallocated successfully
-[IteratedFunction][IFSController.cpp:502]       [ info] Shutdown complete
-[IteratedFunction][ifs_modular_main.cpp:63]     [ info] Application exited successfully
-[IteratedFunction][Shader.cpp:1006]             [trace] Destroyed shader module
-[IteratedFunction][Shader.cpp:1006]             [trace] Destroyed shader module
-[IteratedFunction][Shader.cpp:1006]             [trace] Destroyed shader module
-[IteratedFunction][VulkanContext.cpp:295]       [trace] Destroyed logical device
-[IteratedFunction][VulkanContext.cpp:165]       [trace] Destroyed debug messenger
-[IteratedFunction][VulkanContext.cpp:302]       [trace] Destroyed instance
+[IteratedFunction][Shader.cpp:713]              [debug] VertexDetails: 0 inputs across 0 bindings, 1 outputs
+[IteratedFunction][Shade

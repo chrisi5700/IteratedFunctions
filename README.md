@@ -8,6 +8,9 @@ A high-performance **Vulkan-based fractal visualizer** for exploring Iterated Fu
 ![Barnsley Fern - 100M particles](images/barnsley.png)
 *Barnsley Fern rendered with 100M particles*
 
+![Sierpinski Tetrahedron - 100M particles](images/sierpinski3d.png)
+*Sierpinski Tetrahedron also at 100M particles*
+
 ---
 
 ## Features

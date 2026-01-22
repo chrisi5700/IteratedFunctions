@@ -124,6 +124,7 @@ private:
     // Particle data (backend owns this)
     std::unique_ptr<ParticleBuffer> m_particle_buffer;
     uint32_t m_particle_count;
+	uint32_t m_iteration_count = 100;
 
     // Shader and pipeline
     std::unique_ptr<Shader> m_compute_shader;

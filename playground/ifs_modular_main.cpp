@@ -39,7 +39,7 @@ int main() {
         }
 
         // Create frontend (View) - Point particle renderer
-        auto frontend = ifs::SphereRenderer::create(
+        auto frontend = ifs::ParticleRenderer::create(
             controller->context(),
             controller->device(),
             controller->render_pass(),

@@ -26,59 +26,41 @@ float hash_to_float(uint hash_val) {
     return float(hash_val) / 4294967296.0;
 }
 
+static const float3 mengerOffsets[20] =
+{
+    // Corners (8)
+    float3(-1,-1,-1), float3( 1,-1,-1),
+    float3(-1, 1,-1), float3( 1, 1,-1),
+    float3(-1,-1, 1), float3( 1,-1, 1),
+    float3(-1, 1, 1), float3( 1, 1, 1),
+
+    // Edge centers (12)
+    float3( 0,-1,-1), float3( 0, 1,-1),
+    float3( 0,-1, 1), float3( 0, 1, 1),
+
+    float3(-1, 0,-1), float3( 1, 0,-1),
+    float3(-1, 0, 1), float3( 1, 0, 1),
+
+    float3(-1,-1, 0), float3( 1,-1, 0),
+    float3(-1, 1, 0), float3( 1, 1, 0),
+};
+
 
 float3 applyTransform(float3 pos, float rand)
 {
-    if (rand < 0.01)
-    {
-        // Stem
-        return float3(
-            0.0,
-            0.16 * pos.y,
-            pos.z
-        );
-    }
-    else if (rand < 0.86)
-    {
-        // Successively smaller leaflets
-        return float3(
-            0.85 * pos.x + 0.04 * pos.y,
-           -0.04 * pos.x + 0.85 * pos.y + 1.6,
-            pos.z
-        );
-    }
-    else if (rand < 0.93)
-    {
-        // Left leaflet
-        return float3(
-            0.20 * pos.x - 0.26 * pos.y,
-            0.23 * pos.x + 0.22 * pos.y + 1.6,
-            pos.z
-        );
-    }
-    else
-    {
-        // Right leaflet
-        return float3(
-           -0.15 * pos.x + 0.28 * pos.y,
-            0.26 * pos.x + 0.24 * pos.y + 0.44,
-            pos.z
-        );
-    }
+    int id = (int)(rand * 20.0);
+    float3 offset = mengerOffsets[id];
+    return pos / 3.0 + offset / 3.0;
 }
+
 
 float4 compute_color(float3 pos)
 {
-    // Normalize height roughly into [0,1]
-    float h = saturate(pos.y / 10.0);
-
-    float3 rgb;
-    rgb.r = lerp(0.05, 0.2, h);
-    rgb.g = lerp(0.2,  0.9, h);
-    rgb.b = lerp(0.05, 0.3, h);
-
+    float n = length(pos);
+    float3 rgb = float3(1, 1, 0) * n;
     return float4(rgb, 1.0);
 }
+
 
 
 
